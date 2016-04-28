@@ -3,7 +3,7 @@ package Struct::Path;
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use base qw(Exporter);
+use parent qw(Exporter);
 use Carp qw(croak);
 
 BEGIN { our @EXPORT_OK = qw(spath) }
@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -67,13 +67,13 @@ sub spath($$;@) {
             if (@{$step}) {
                 for my $i (@{$step}) {
                     for my $r (@{$refs}) {
-                        next unless (ref ${$r} eq 'ARRAY'); # TODO: test me
+                        next unless (ref ${$r} eq 'ARRAY');
                         push @new, \${$r}->[$i] if (@{${$r}} > $i);
                     }
                 }
             } else { # [] in the path
                 for my $r (@{$refs}) {
-                    next unless (ref ${$r} eq 'ARRAY'); # TODO: test me
+                    next unless (ref ${$r} eq 'ARRAY');
                     for my $i (@{${$r}}) {
                         push @new, \$i;
                     }
@@ -81,7 +81,7 @@ sub spath($$;@) {
             }
         } elsif (ref $step eq 'HASH') {
             for my $r (@{$refs}) {
-                next unless (ref ${$r} eq 'HASH'); # TODO: test me
+                next unless (ref ${$r} eq 'HASH');
                 if (keys %{$step}) {
                     for my $key (sort { $step->{$a} <=> $step->{$b} } keys %{$step}) {
                         push @new, \${$r}->{$key} if (exists ${$r}->{$key});
@@ -101,6 +101,10 @@ sub spath($$;@) {
 
     return @{$refs};
 }
+
+=head1 LIMITATIONS
+
+No object oriented interface provided.
 
 =head1 AUTHOR
 
@@ -142,7 +146,8 @@ L<http://search.cpan.org/dist/Struct-Path/>
 
 =head1 SEE ALSO
 
-L<JSON::Path>
+L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy> L<Data::Nested> L<Data::PathSimple>
+L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path>
 
 =head1 LICENSE AND COPYRIGHT
 
