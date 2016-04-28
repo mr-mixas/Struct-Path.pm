@@ -2,16 +2,19 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 12;
+use Test::More tests => 16;
 
 use Struct::Path qw(spath);
+
+use Storable qw(freeze);
+$Storable::canonical = 1;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 0;
 $Data::Dumper::Quotekeys = 0;
 $Data::Dumper::Sortkeys = 1;
 
-my (@r, $s);
+my (@r, $s, $frozen_s);
 
 $s = {
     'a' => [
@@ -29,17 +32,29 @@ $s = {
     'c' => 'vc',
 };
 
+$frozen_s = freeze($s); # check later it's not chaged
+
 eval { spath($s, undef) };                                      # path must be a list
 ok($@); # expected error
 
 eval { spath(undef, []) };                                      # struct must be a struct
 ok($@); # expected error
 
-eval { spath($s, [ {a => 0},[2] ]) };                           # array item 2 doesn't exists
+eval { spath($s, [ {a => 0},[1000] ]) };                        # out of range
 ok(!$@); # must be no error
 
-eval { spath($s, [ {0 => 'notexists'} ]) };                     # hash key doesn't exists
+eval { spath($s, [ {notexists => 0} ]) };                       # hash key doesn't exists
 ok(!$@); # must be no error
+
+@r = spath($s, [ [],{c => 0} ]);                                # path not exists
+ok(!@r);
+
+@r = spath($s, [ {a => 0},{} ]);                                # path not exists
+ok(!@r);
+
+@r = spath($s, []);                                             # must return full struct
+#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
+ok($frozen_s = freeze(${$r[0]}));
 
 @r = spath($s, [ {c => undef} ]);                               # undef as order marker also ok
 #print STDERR "\n>>> ", Dumper(@r), " <<<\n";
@@ -48,10 +63,7 @@ ok(
         and ref $r[0] eq 'SCALAR' and ${$r[0]} eq 'vc'
 );
 
-${$r[0]} = "vc_replaced";
-ok(exists $s->{c} and $s->{c} eq "vc_replaced");                # set value through path
-
-@r = spath($s, [ {b => 0} ]);
+@r = spath($s, [ {b => 0} ]);                                   # get
 #print STDERR "\n>>> ", Dumper(@r), " <<<\n";
 ok(
     @r == 1
@@ -102,3 +114,13 @@ ok(
             and exists ${$r[0]}->{'a2ca'} and ref ${$r[0]}->{'a2ca'} eq 'ARRAY'
                 and @{${$r[0]}->{'a2ca'}} == 0
 );
+
+ok($frozen_s eq freeze($s));                                    # check orig struct unchanged
+
+
+### set itests ###
+
+@r = spath($s, [ {c => 0} ]);
+#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
+${$r[0]} = "vc_replaced";
+ok(exists $s->{c} and $s->{c} eq "vc_replaced");                # set value through path
