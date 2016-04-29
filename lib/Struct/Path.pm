@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -55,10 +55,10 @@ Returns list of refs from structure.
 =cut
 
 sub spath($$;@) {
-    my ($ref, $path, %opts) = @_;
-    croak "Stuct must be reference to ARRAY or HASH" unless (ref $ref eq 'ARRAY' or ref $ref eq 'HASH');
+    my ($struct, $path, %opts) = @_;
+    croak "Stuct must be reference to ARRAY or HASH" unless (ref $struct eq 'ARRAY' or ref $struct eq 'HASH');
     croak "Path must be arrayref" unless (ref $path eq 'ARRAY');
-    my $refs = [ \$ref ];
+    my $refs = [ \$struct ]; # init
 
     my $sc = 0; # step counter
     for my $step (@{$path}) {
