@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
@@ -51,6 +51,17 @@ Nothing exports by default.
 =head2 spath
 
 Returns list of refs from structure.
+    @list = spath($struct, $path, %opts)
+
+=head3 Available options
+
+=over 4
+
+=item deref
+
+Dereference result items if set to some true value.
+
+=back
 
 =cut
 
@@ -99,7 +110,7 @@ sub spath($$;@) {
         $sc++;
     }
 
-    return @{$refs};
+    return $opts{deref} ? map { $_ = ${$_} } @{$refs} : @{$refs};
 }
 
 =head1 LIMITATIONS

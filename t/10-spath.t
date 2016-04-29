@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 use Struct::Path qw(spath);
 
@@ -104,6 +104,14 @@ ok(
     @r == 2
         and ref $r[0] eq 'SCALAR' and ${$r[0]} eq 'a0'
         and ref $r[1] eq 'SCALAR' and ${$r[1]} eq 'a1'
+);
+
+@r = spath($s, [ {a => 0},[1],[] ], deref => 1);                # dereference result
+#print STDERR "\n>>> ", Dumper(\@r), " <<<\n";
+ok(
+    @r == 2
+        and $r[0] eq 'a0'
+        and $r[1] eq 'a1'
 );
 
 @r = spath($s, [ {a => 0},[0],{a2c => 1} ]);                    # mixed structures
