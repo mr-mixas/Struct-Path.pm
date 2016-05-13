@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -61,6 +61,10 @@ Returns list of refs from structure.
 
 Dereference result items if set to some true value.
 
+=item strict
+
+Croak if at least one element, specified in path, is absent in the struct.
+
 =back
 
 =cut
@@ -92,10 +96,17 @@ sub spath($$;@) {
             }
         } elsif (ref $step eq 'HASH') {
             for my $r (@{$refs}) {
-                next unless (ref ${$r} eq 'HASH');
+                unless (ref ${$r} eq 'HASH') {
+                    croak "Passed struct doesn't strictly match provided path" if $opts{strict}; # FIXME: not covered by tests
+                    next;
+                }
                 if (keys %{$step}) {
                     for my $key (sort { $step->{$a} <=> $step->{$b} } keys %{$step}) {
-                        push @new, \${$r}->{$key} if (exists ${$r}->{$key});
+                        unless (exists ${$r}->{$key}) {
+                            croak "Key '$key' not found in the struct" if $opts{strict};
+                            next;
+                        }
+                        push @new, \${$r}->{$key};
                     }
                 } else { # {} in the path
                     for my $key (keys %{${$r}}) {

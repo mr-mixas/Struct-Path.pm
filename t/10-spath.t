@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 use Struct::Path qw(spath);
 
@@ -45,6 +45,10 @@ ok(!$@); # must be no error
 
 eval { spath($s, [ {notexists => 0} ]) };                       # hash key doesn't exists
 ok(!$@); # must be no error
+
+eval { spath($s, [ {notexists => 0} ], strict => 1) };          # hash key doesn't exists, but strict opt used
+ok($@); # must be error
+#print STDERR "\n>>> ", Dumper($@), " <<<\n";
 
 @r = spath($s, [ [],{c => 0} ]);                                # path not exists
 ok(!@r);
@@ -126,7 +130,7 @@ ok(
 ok($frozen_s eq freeze($s));                                    # check orig struct unchanged
 
 
-### set itests ###
+### set tests ###
 
 @r = spath($s, [ {c => 0} ]);
 #print STDERR "\n>>> ", Dumper(@r), " <<<\n";
