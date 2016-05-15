@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -79,16 +79,13 @@ sub spath($$;@) {
     for my $step (@{$path}) {
         my @new;
         if (ref $step eq 'ARRAY') {
-            if (@{$step}) {
-                for my $i (@{$step}) {
-                    for my $r (@{$refs}) {
-                        next unless (ref ${$r} eq 'ARRAY');
+            for my $r (@{$refs}) {
+                next unless (ref ${$r} eq 'ARRAY');
+                if (@{$step}) {
+                    for my $i (@{$step}) {
                         push @new, \${$r}->[$i] if (@{${$r}} > $i);
                     }
-                }
-            } else { # [] in the path
-                for my $r (@{$refs}) {
-                    next unless (ref ${$r} eq 'ARRAY');
+                } else { # [] in the path
                     for my $i (@{${$r}}) {
                         push @new, \$i;
                     }
