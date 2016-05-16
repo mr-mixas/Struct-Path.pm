@@ -15,9 +15,12 @@ WriteMakefile(
         'ExtUtils::MakeMaker' => 0,
     },
     BUILD_REQUIRES => {
+        'Storable'   => 0,
         'Test::More' => 0,
     },
-    PREREQ_PM => {},
+    PREREQ_PM => {
+        'parent'     => 0,
+    },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Struct-Path-*' },
 );
