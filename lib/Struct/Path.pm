@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
@@ -82,13 +82,13 @@ sub spath($$;@) {
         if (ref $step eq 'ARRAY') {
             for my $r (@{$refs}) {
                 unless (ref ${$r} eq 'ARRAY') {
-                    croak "Passed struct doesn't match provided path (path step $sc)" if $opts{strict};
+                    croak "Passed struct doesn't match provided path (array expected on step #$sc)" if $opts{strict};
                     next;
                 }
                 if (@{$step}) {
                     for my $i (@{$step}) {
                         unless (@{${$r}} > $i) {
-                            croak "Item with index '$i' doesn't exists in array (path step $sc)" if $opts{strict};
+                            croak "Item with index '$i' doesn't exists in array (step #$sc)" if $opts{strict};
                             next;
                         }
                         push @new, \${$r}->[$i];
@@ -102,13 +102,13 @@ sub spath($$;@) {
         } elsif (ref $step eq 'HASH') {
             for my $r (@{$refs}) {
                 unless (ref ${$r} eq 'HASH') {
-                    croak "Passed struct doesn't strictly match provided path" if $opts{strict}; # FIXME: not covered by tests
+                    croak "Passed struct doesn't match provided path (hash expected on step #$sc)" if $opts{strict};
                     next;
                 }
                 if (keys %{$step}) {
                     for my $key (sort { $step->{$a} <=> $step->{$b} } keys %{$step}) {
                         unless (exists ${$r}->{$key}) {
-                            croak "Key '$key' not found in the struct" if $opts{strict};
+                            croak "Key '$key' doesn't exists in hash (step #$sc)" if $opts{strict};
                             next;
                         }
                         push @new, \${$r}->{$key};
@@ -120,7 +120,7 @@ sub spath($$;@) {
                 }
             }
         } else {
-            croak "Unsupported thing in the path (in position $sc)";
+            croak "Unsupported thing in the path (step #$sc)";
         }
         $refs = \@new;
         $sc++;
