@@ -1,7 +1,7 @@
 #!perl -T
 use 5.006;
 use strict;
-use warnings FATAL => 'all';
+use warnings;
 use Test::More tests => 20;
 
 use Struct::Path qw(spath);
@@ -9,10 +9,10 @@ use Struct::Path qw(spath);
 use Storable qw(freeze);
 $Storable::canonical = 1;
 
-use Data::Dumper;
-$Data::Dumper::Indent = 0;
-$Data::Dumper::Quotekeys = 0;
-$Data::Dumper::Sortkeys = 1;
+#use Data::Dumper;
+#$Data::Dumper::Indent = 0;
+#$Data::Dumper::Quotekeys = 0;
+#$Data::Dumper::Sortkeys = 1;
 
 my (@r, $s, $frozen_s);
 
@@ -45,7 +45,7 @@ ok(!$@); # must be no error
 
 eval { spath($s, [ {a => 0},[1000] ], strict => 1) };           # out of range, but strict opt used
 ok($@); # must be error
-print STDERR "\n>>> ", Dumper($@), " <<<\n";
+#print STDERR "\n>>> ", Dumper($@), " <<<\n";
 
 eval { spath($s, [ [0] ], strict => 1) };                       # wrong step type, strict
 ok($@);
