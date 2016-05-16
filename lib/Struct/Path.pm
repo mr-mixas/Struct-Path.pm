@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 SYNOPSIS
 
@@ -81,10 +81,17 @@ sub spath($$;@) {
         my @new;
         if (ref $step eq 'ARRAY') {
             for my $r (@{$refs}) {
-                next unless (ref ${$r} eq 'ARRAY');
+                unless (ref ${$r} eq 'ARRAY') {
+                    croak "Passed struct doesn't match provided path (path step $sc)" if $opts{strict};
+                    next;
+                }
                 if (@{$step}) {
                     for my $i (@{$step}) {
-                        push @new, \${$r}->[$i] if (@{${$r}} > $i);
+                        unless (@{${$r}} > $i) {
+                            croak "Item with index '$i' doesn't exists in array (path step $sc)" if $opts{strict};
+                            next;
+                        }
+                        push @new, \${$r}->[$i];
                     }
                 } else { # [] in the path
                     for my $i (@{${$r}}) {

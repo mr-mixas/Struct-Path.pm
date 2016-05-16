@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 use Struct::Path qw(spath);
 
@@ -42,6 +42,14 @@ ok($@); # expected error
 
 eval { spath($s, [ {a => 0},[1000] ]) };                        # out of range
 ok(!$@); # must be no error
+
+eval { spath($s, [ {a => 0},[1000] ], strict => 1) };           # out of range, but strict opt used
+ok($@); # must be error
+print STDERR "\n>>> ", Dumper($@), " <<<\n";
+
+eval { spath($s, [ [0] ], strict => 1) };                       # wrong step type, strict
+ok($@);
+#print STDERR "\n>>> ", Dumper($@), " <<<\n";
 
 eval { spath($s, [ {notexists => 0} ]) };                       # hash key doesn't exists
 ok(!$@); # must be no error
