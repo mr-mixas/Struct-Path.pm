@@ -22,7 +22,7 @@ our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
-    use Struct::Path;
+    use Struct::Path qw(spath);
 
     $s = [
         0,
@@ -51,6 +51,7 @@ Nothing exports by default.
 =head2 spath
 
 Returns list of refs from structure.
+
     @list = spath($struct, $path, %opts)
 
 =head3 Available options
