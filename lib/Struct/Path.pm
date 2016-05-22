@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use parent qw(Exporter);
 use Carp qw(croak);
 
-BEGIN { our @EXPORT_OK = qw(spath) }
+our @EXPORT_OK = qw(spath);
 
 =head1 NAME
 
@@ -14,11 +14,11 @@ Struct::Path - path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -64,7 +64,7 @@ Dereference result items if set to some true value.
 
 =item strict
 
-Croak if at least one element, specified in path, is absent in the struct.
+Croak if at least one element, specified in path, absent in the struct.
 
 =back
 
@@ -175,6 +175,8 @@ L<http://search.cpan.org/dist/Struct-Path/>
 
 L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy> L<Data::Nested> L<Data::PathSimple>
 L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path>
+
+L<Struct::Diff>
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -15,12 +15,20 @@ WriteMakefile(
         'ExtUtils::MakeMaker' => 0,
     },
     BUILD_REQUIRES => {
-        'Storable'   => 0,
-        'Test::More' => 0,
+        'Pod::Markdown' => 0,
+        'Storable'      => 0,
+        'Test::More'    => 0,
     },
     PREREQ_PM => {
+        'Carp'       => 0,
         'parent'     => 0,
+        'strict'     => 0,
+        'warnings'   => 0,
     },
-    dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    dist  => {
+        COMPRESS => 'gzip -9f',
+        SUFFIX => 'gz',
+        PREOP    => 'pod2markdown lib/Struct/Path.pm > README.md',
+    },
     clean => { FILES => 'Struct-Path-*' },
 );
