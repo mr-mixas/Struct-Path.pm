@@ -6,6 +6,7 @@ README
 TODO
 t/00-load.t
 t/10-spath.t
+t/12-spath-delete.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

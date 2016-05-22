@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.10    2016-06-22
+        'delete' opt for spath() implemented
+
 0.09    2016-05-22
         Pod and dist corrected, unused code removed
 

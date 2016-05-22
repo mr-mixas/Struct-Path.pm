@@ -10,15 +10,15 @@ our @EXPORT_OK = qw(spath);
 
 =head1 NAME
 
-Struct::Path - path for nested structures where path is also a structure
+Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -31,16 +31,14 @@ our $VERSION = '0.09';
         undef
     ];
 
-    $r = spath($s, [ [3,0,1] ]);
-    # $r == [\undef, \0, \1]
+    @r = spath($s, [ [3,0,1] ]);
+    # @r == (\undef, \0, \1)
 
-    $r = spath($s, [ [2],{2a => undef},{} ]);
-    # $r == [\2aav, \2abv]
+    @r = spath($s, [ [2],{2a => undef},{} ]);
+    # @r == (\2aav, \2abv)
 
-    ${$r[1]} =~ s/2a/blah-blah-/;
+    $r[1] =~ s/2a/blah-blah-/;
     # $s->[2]{2a}{2aa} == "blah-blah-av"
-    # $s->[2]{2a}{2ab} == "blah-blah-ab"
-    ...
 
 =head1 EXPORT
 
@@ -57,6 +55,10 @@ Returns list of refs from structure.
 =head3 Available options
 
 =over 4
+
+=item delete
+
+Delete specified by path items from structure.
 
 =item deref
 
@@ -92,10 +94,12 @@ sub spath($$;@) {
                             next;
                         }
                         push @new, \${$r}->[$i];
+                        splice(@{${$r}}, $i) if ($opts{delete} and $sc + 1 == @{$path});
                     }
                 } else { # [] in the path
-                    for my $i (@{${$r}}) {
-                        push @new, \$i;
+                    for (my $i = @{${$r}} - 1; $i >= 0; $i--) {
+                        unshift @new, \${$r}->[$i];
+                        splice(@{${$r}}, $i) if ($opts{delete} and $sc + 1 == @{$path});
                     }
                 }
             }
@@ -112,10 +116,12 @@ sub spath($$;@) {
                             next;
                         }
                         push @new, \${$r}->{$key};
+                        delete ${$r}->{$key} if ($opts{delete} and $sc + 1 == @{$path});
                     }
                 } else { # {} in the path
                     for my $key (keys %{${$r}}) {
                         push @new, \${$r}->{$key};
+                        delete ${$r}->{$key} if ($opts{delete} and $sc + 1 == @{$path});
                     }
                 }
             }

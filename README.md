@@ -1,10 +1,10 @@
 # NAME
 
-Struct::Path - path for nested structures where path is also a structure
+Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.09
+Version 0.10
 
 # SYNOPSIS
 
@@ -17,16 +17,14 @@ Version 0.09
         undef
     ];
 
-    $r = spath($s, [ [3,0,1] ]);
-    # $r == [\undef, \0, \1]
+    @r = spath($s, [ [3,0,1] ]);
+    # @r == (\undef, \0, \1)
 
-    $r = spath($s, [ [2],{2a => undef},{} ]);
-    # $r == [\2aav, \2abv]
+    @r = spath($s, [ [2],{2a => undef},{} ]);
+    # @r == (\2aav, \2abv)
 
-    ${$r[1]} =~ s/2a/blah-blah-/;
+    $r[1] =~ s/2a/blah-blah-/;
     # $s->[2]{2a}{2aa} == "blah-blah-av"
-    # $s->[2]{2a}{2ab} == "blah-blah-ab"
-    ...
 
 # EXPORT
 
@@ -41,6 +39,10 @@ Returns list of refs from structure.
     @list = spath($struct, $path, %opts)
 
 ### Available options
+
+- delete
+
+    Delete specified by path items from structure.
 
 - deref
 
