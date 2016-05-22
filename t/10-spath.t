@@ -9,138 +9,108 @@ use Struct::Path qw(spath);
 use Storable qw(freeze);
 $Storable::canonical = 1;
 
-#use Data::Dumper;
-#$Data::Dumper::Indent = 0;
-#$Data::Dumper::Quotekeys = 0;
-#$Data::Dumper::Sortkeys = 1;
+use lib "t";
+use _common qw($s_mixed scmp);
 
-my (@r, $s, $frozen_s);
+my (@r, $frozen_s);
 
-$s = {
-    'a' => [
-        {
-            'a2a' => { 'a2aa' => 0 },
-            'a2b' => { 'a2ba' => undef },
-            'a2c' => { 'a2ca' => [] },
-        },
-        [ 'a0', 'a1' ],
-    ],
-    'b' => {
-        'ba' => 'vba',
-        'bb' => 'vbb',
-    },
-    'c' => 'vc',
-};
+$frozen_s = freeze($s_mixed); # check later it's not chaged
 
-$frozen_s = freeze($s); # check later it's not chaged
-
-eval { spath($s, undef) };                                      # path must be a list
+eval { spath($s_mixed, undef) };                                # path must be a list
 ok($@); # expected error
 
 eval { spath(undef, []) };                                      # struct must be a struct
 ok($@); # expected error
 
-eval { spath($s, [ {a => 0},[1000] ]) };                        # out of range
+eval { spath($s_mixed, [ {a => 0},[1000] ]) };                  # out of range
 ok(!$@); # must be no error
 
-eval { spath($s, [ {a => 0},[1000] ], strict => 1) };           # out of range, but strict opt used
+eval { spath($s_mixed, [ {a => 0},[1000] ], strict => 1) };     # out of range, but strict opt used
 ok($@); # must be error
-#print STDERR "\n>>> ", Dumper($@), " <<<\n";
 
-eval { spath($s, [ [0] ], strict => 1) };                       # wrong step type, strict
+eval { spath($s_mixed, [ [0] ], strict => 1) };                 # wrong step type, strict
 ok($@);
-#print STDERR "\n>>> ", Dumper($@), " <<<\n";
 
-eval { spath($s, [ {notexists => 0} ]) };                       # hash key doesn't exists
+eval { spath($s_mixed, [ {notexists => 0} ]) };                 # hash key doesn't exists
 ok(!$@); # must be no error
 
-eval { spath($s, [ {notexists => 0} ], strict => 1) };          # hash key doesn't exists, but strict opt used
+eval { spath($s_mixed, [ {notexists => 0} ], strict => 1) };    # hash key doesn't exists, but strict opt used
 ok($@); # must be error
-#print STDERR "\n>>> ", Dumper($@), " <<<\n";
 
-@r = spath($s, [ [],{c => 0} ]);                                # path not exists
+@r = spath($s_mixed, [ [],{c => 0} ]);                          # path not exists
 ok(!@r);
 
-@r = spath($s, [ {a => 0},{} ]);                                # path not exists
+@r = spath($s_mixed, [ {a => 0},{} ]);                          # path not exists
 ok(!@r);
 
-@r = spath($s, []);                                             # must return full struct
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
+@r = spath($s_mixed, []);                                       # must return full struct
 ok($frozen_s = freeze(${$r[0]}));
 
-@r = spath($s, [ {c => undef} ]);                               # undef as order marker also ok
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
-ok(
-    @r == 1
-        and ref $r[0] eq 'SCALAR' and ${$r[0]} eq 'vc'
-);
+@r = spath($s_mixed, [ {c => undef} ]);                         # undef as order marker also ok
+ok(scmp(
+    \@r,
+    [\'vc'],
+    "blah-blah"
+));
 
-@r = spath($s, [ {b => 0} ]);                                   # get
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
-ok(
-    @r == 1
-        and ref $r[0] eq 'REF' and ref ${$r[0]} eq 'HASH' and keys %{${$r[0]}} == 2
-            and exists ${$r[0]}->{'ba'} and ${$r[0]}->{'ba'} eq 'vba'
-            and exists ${$r[0]}->{'bb'} and ${$r[0]}->{'bb'} eq 'vbb'
-);
+@r = spath($s_mixed, [ {b => 0} ]);                             # get
+ok(scmp(
+    \@r,
+    [\{ba => 'vba',bb => 'vbb'}],
+    "get {b}"
+));
 
-@r = spath($s, [ {b => 0},{ba => 1, bb => 0} ]);                # check sort
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
-ok(
-    @r == 2
-        and ref $r[0] eq 'SCALAR' and ${$r[0]} eq 'vbb'
-        and ref $r[1] eq 'SCALAR' and ${$r[1]} eq 'vba'
-);
+@r = spath($s_mixed, [ {b => 0},{ba => 1, bb => 0} ]);          # check sort
+ok(scmp(
+    \@r,
+    [\'vbb',\'vba'],
+    "get {b}{bb,ba}"
+));
 
-@r = spath($s, [ {b => 0},{} ]);                                # here must be all b's subkeys values
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
-# access via keys, which returns keys with random order, that's why sort result here
-@r = sort map { ${$_} } @r;
-ok(
-    @r == 2
-        and $r[0] eq 'vba'
-        and $r[1] eq 'vbb'
-);
+@r = spath($s_mixed, [ {b => 0},{} ]);                          # here must be all b's subkeys values
+ok(scmp(
+    [ sort { ${$a} cmp ${$b} } @r ], # access via keys, which returns keys with random order, that's why sort result here
+    [\'vba',\'vbb'],
+    "get {b}{}"
+));
 
-@r = spath($s, [ {a => 0},[1],[1, 0] ]);                        # result must have right sequence
-#print STDERR "\n>>> ", Dumper(\@r), " <<<\n";
-ok(
-    @r == 2
-        and ref $r[0] eq 'SCALAR' and ${$r[0]} eq 'a1'
-        and ref $r[1] eq 'SCALAR' and ${$r[1]} eq 'a0'
-);
+@r = spath($s_mixed, [ {a => 0},[1],[1, 0] ]);                  # result must have right sequence
+ok(scmp(
+    \@r,
+    [\'a1',\'a0'],
+    "get {a}[1][1,0]"
+));
 
-@r = spath($s, [ {a => 0},[1],[] ]);                            # result must contain all items from last step
-#print STDERR "\n>>> ", Dumper(\@r), " <<<\n";
-ok(
-    @r == 2
-        and ref $r[0] eq 'SCALAR' and ${$r[0]} eq 'a0'
-        and ref $r[1] eq 'SCALAR' and ${$r[1]} eq 'a1'
-);
+@r = spath($s_mixed, [ {a => 0},[1],[] ]);                      # result must contain all items from last step
+ok(scmp(
+    \@r,
+    [\'a0',\'a1'],
+    "get {a}[1][]"
+));
 
-@r = spath($s, [ {a => 0},[1],[] ], deref => 1);                # dereference result
-#print STDERR "\n>>> ", Dumper(\@r), " <<<\n";
-ok(
-    @r == 2
-        and $r[0] eq 'a0'
-        and $r[1] eq 'a1'
-);
+@r = spath($s_mixed, [ {a => 0},[1],[] ], deref => 1);          # dereference result
+ok(scmp(
+    \@r,
+    ['a0','a1'],
+    "get {a}[1][], deref=1"
+));
 
-@r = spath($s, [ {a => 0},[0],{a2c => 1} ]);                    # mixed structures
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
-ok(
-    @r == 1
-        and ref $r[0] eq 'REF' and ref ${$r[0]} eq 'HASH' and keys %{${$r[0]}} == 1
-            and exists ${$r[0]}->{'a2ca'} and ref ${$r[0]}->{'a2ca'} eq 'ARRAY'
-                and @{${$r[0]}->{'a2ca'}} == 0
-);
+@r = spath($s_mixed, [ {a => 0},[0],{a2c => 1} ]);              # mixed structures
+ok(scmp(
+    \@r,
+    [\{a2ca => []}],
+    "get {a}[0]{a2c}"
+));
 
-ok($frozen_s eq freeze($s));                                    # check orig struct unchanged
+ok($frozen_s eq freeze($s_mixed));                              # check orig struct unchanged
 
 
 ### set tests ###
-
-@r = spath($s, [ {c => 0} ]);
-#print STDERR "\n>>> ", Dumper(@r), " <<<\n";
+@r = spath($s_mixed, [ {c => 0} ]);
 ${$r[0]} = "vc_replaced";
-ok(exists $s->{c} and $s->{c} eq "vc_replaced");                # set value through path
+ok(scmp(
+    $s_mixed,
+    {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc_replaced'},
+    "replace {c}"
+));
+

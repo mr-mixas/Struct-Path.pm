@@ -2,39 +2,18 @@
 use 5.006;
 use strict;
 use warnings;
-use Data::Dumper;
 use Storable qw(dclone);
 use Test::More tests => 14;
 
 use Struct::Path qw(spath);
 
-sub scmp($$$) {
-    my $got = Data::Dumper->new([shift])->Terse(1)->Sortkeys(1)->Quotekeys(0)->Indent(0)->Dump();
-    my $exp = Data::Dumper->new([shift])->Terse(1)->Sortkeys(1)->Quotekeys(0)->Indent(0)->Dump();
-    print STDERR "\nDEBUG: === " . shift . " ===\ngot: $got\nexp: $exp\n" if ($ENV{DEBUG});
-    return $got eq $exp;
-}
+use lib "t";
+use _common qw($s_mixed scmp);
 
-my (@r, $s, $t);
-
-$s = {
-    'a' => [
-        {
-            'a2a' => { 'a2aa' => 0 },
-            'a2b' => { 'a2ba' => undef },
-            'a2c' => { 'a2ca' => [] },
-        },
-        [ 'a0', 'a1' ],
-    ],
-    'b' => {
-        'ba' => 'vba',
-        'bb' => 'vbb',
-    },
-    'c' => 'vc',
-};
+my (@r, $t);
 
 # delete single hash key
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {b => 0} ], delete => 1);
 ok(scmp(
     $t,
@@ -49,7 +28,7 @@ ok(scmp(
 ));
 
 # delete single hash key, two steps
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {b => 0},{ba => 0} ], delete => 1);
 ok(scmp(
     $t,
@@ -64,7 +43,7 @@ ok(scmp(
 ));
 
 # delete all hash substruct
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {b => 0},{} ], delete => 1);
 ok(scmp(
     $t,
@@ -79,7 +58,7 @@ ok(scmp(
 ));
 
 # delete single array item
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {a => 0},[1] ], delete => 1);
 ok(scmp(
     $t,
@@ -94,7 +73,7 @@ ok(scmp(
 ));
 
 # delete deep single array item
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {a => 0},[1],[1] ], delete => 1);
 ok(scmp(
     $t,
@@ -109,7 +88,7 @@ ok(scmp(
 ));
 
 # delete all array's items
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {a => 0},[1],[] ], delete => 1);
 ok(scmp(
     $t,
@@ -124,7 +103,7 @@ ok(scmp(
 ));
 
 # empty array in the middle of the path
-$t = dclone($s);
+$t = dclone($s_mixed);
 @r = spath($t, [ {a => 0},[],[1] ], delete => 1); # ok without 'strict'
 ok(scmp(
     $t,
