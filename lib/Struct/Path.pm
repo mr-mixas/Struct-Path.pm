@@ -94,8 +94,8 @@ sub spath($$;@) {
                             next;
                         }
                         push @new, \${$r}->[$i];
-                        splice(@{${$r}}, $i) if ($opts{delete} and $sc + 1 == @{$path});
                     }
+                    map { splice(@{${$r}}, $_) } reverse sort @{$step} if ($opts{delete} and $sc + 1 == @{$path});
                 } else { # [] in the path
                     for (my $i = @{${$r}} - 1; $i >= 0; $i--) {
                         unshift @new, \${$r}->[$i];
