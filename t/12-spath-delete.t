@@ -3,7 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Storable qw(dclone);
-use Test::More tests => 14;
+use Test::More tests => 18;
 
 use Struct::Path qw(spath);
 
@@ -70,6 +70,36 @@ ok(scmp(
     \@r,
     [\['a0','a1']],
     "delete {a}[1]:: check returned value"
+));
+
+# delete several array items, asc
+$t = dclone($s_mixed);
+@r = spath($t, [ {a => 0},[0,1] ], delete => 1);
+ok(scmp(
+    $t,
+    {a => [],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+    "delete {a}[0,1]"
+));
+
+ok(scmp(
+    \@r,
+    [\{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},\['a0','a1']],
+    "delete {a}[0,1]:: check returned value"
+));
+
+# delete several array items, desc
+$t = dclone($s_mixed);
+@r = spath($t, [ {a => 0},[1,0] ], delete => 1);
+ok(scmp(
+    $t,
+    {a => [],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+    "delete {a}[1,0]"
+));
+
+ok(scmp(
+    \@r,
+    [\['a0','a1'],\{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}}],
+    "delete {a}[1,0]:: check returned value"
 ));
 
 # delete deep single array item
