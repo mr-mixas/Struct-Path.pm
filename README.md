@@ -23,7 +23,7 @@ Version 0.10
     @r = spath($s, [ [2],{2a => undef},{} ]);
     # @r == (\2aav, \2abv)
 
-    $r[1] =~ s/2a/blah-blah-/;
+    ${$r[1]} =~ s/2a/blah-blah-/;
     # $s->[2]{2a}{2aa} == "blah-blah-av"
 
 # EXPORT
