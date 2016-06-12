@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -64,6 +64,10 @@ Delete specified by path items from structure.
 
 Dereference result items if set to some true value.
 
+=item expand
+
+Expand structure if specified in path items does't exists. All newly created items initialized by undef.
+
 =item strict
 
 Croak if at least one element, specified in path, absent in the struct.
@@ -84,12 +88,15 @@ sub spath($$;@) {
         if (ref $step eq 'ARRAY') {
             for my $r (@{$refs}) {
                 unless (ref ${$r} eq 'ARRAY') {
-                    croak "Passed struct doesn't match provided path (array expected on step #$sc)" if $opts{strict};
-                    next;
+                    if ($opts{strict} or ($opts{expand} and defined ${$r})) {
+                        croak "Passed struct doesn't match provided path (array expected on step #$sc)";
+                    } elsif (not $opts{expand}) {
+                        next;
+                    }
                 }
                 if (@{$step}) {
                     for my $i (@{$step}) {
-                        unless (@{${$r}} > $i) {
+                        unless ($opts{expand} or @{${$r}} > $i) {
                             croak "Item with index '$i' doesn't exists in array (step #$sc)" if $opts{strict};
                             next;
                         }
@@ -106,12 +113,15 @@ sub spath($$;@) {
         } elsif (ref $step eq 'HASH') {
             for my $r (@{$refs}) {
                 unless (ref ${$r} eq 'HASH') {
-                    croak "Passed struct doesn't match provided path (hash expected on step #$sc)" if $opts{strict};
-                    next;
+                    if ($opts{strict} or ($opts{expand} and defined ${$r})) {
+                        croak "Passed struct doesn't match provided path (hash expected on step #$sc)";
+                    } elsif (not $opts{expand}) {
+                        next;
+                    }
                 }
                 if (keys %{$step}) {
                     for my $key (sort { $step->{$a} <=> $step->{$b} } keys %{$step}) {
-                        unless (exists ${$r}->{$key}) {
+                        unless ($opts{expand} or exists ${$r}->{$key}) {
                             croak "Key '$key' doesn't exists in hash (step #$sc)" if $opts{strict};
                             next;
                         }

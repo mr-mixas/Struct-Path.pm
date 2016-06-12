@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.10
+Version 0.11
 
 # SYNOPSIS
 
@@ -47,6 +47,10 @@ Returns list of refs from structure.
 - deref
 
     Dereference result items if set to some true value.
+
+- expand
+
+    Expand structure if specified in path items does't exists. All newly created items initialized by undef.
 
 - strict
 
