@@ -16,9 +16,18 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Data::Dumper'  => 0,
-        'Pod::Markdown' => 0,
         'Storable'      => 0,
         'Test::More'    => 0,
+    },
+    META_MERGE => {
+        'meta-spec' => { version => 2 },
+         resources => {
+             repository => {
+                 type => 'git',
+                 url  => 'https://github.com/mr-mixas/Struct-Path.pm.git',
+                 web  => 'https://github.com/mr-mixas/Struct-Path.pm',
+             },
+         },
     },
     PREREQ_PM => {
         'Carp'       => 0,
@@ -29,7 +38,6 @@ WriteMakefile(
     dist  => {
         COMPRESS => 'gzip -9f',
         SUFFIX => 'gz',
-        PREOP    => 'pod2markdown lib/Struct/Path.pm > README.md',
     },
     clean => { FILES => 'Struct-Path-*' },
 );
