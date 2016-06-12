@@ -7,6 +7,7 @@ TODO
 t/00-load.t
 t/10-spath-address.t
 t/12-spath-delete.t
+t/14-spath-expand.t
 t/_common.pm
 t/manifest.t
 t/pod-coverage.t
