@@ -20,14 +20,9 @@ WriteMakefile(
         'Test::More'    => 0,
     },
     META_MERGE => {
-        'meta-spec' => { version => 2 },
-         resources => {
-             repository => {
-                 type => 'git',
-                 url  => 'https://github.com/mr-mixas/Struct-Path.pm.git',
-                 web  => 'https://github.com/mr-mixas/Struct-Path.pm',
-             },
-         },
+        resources => {
+            repository  => 'https://github.com/mr-mixas/Struct-Path.pm',
+        },
     },
     PREREQ_PM => {
         'Carp'       => 0,
