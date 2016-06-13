@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 SYNOPSIS
 
@@ -48,7 +48,7 @@ Nothing exports by default.
 
 =head2 spath
 
-Returns list of refs from structure.
+Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
 
@@ -58,7 +58,7 @@ Returns list of refs from structure.
 
 =item delete
 
-Delete specified by path items from structure.
+Delete specified by path items from structure if set to true value.
 
 =item deref
 

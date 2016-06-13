@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.12    2016-06-13
+        Pod and dist corrected
+
 0.11    2016-06-12
         'expand' opt for spath() implemented
 

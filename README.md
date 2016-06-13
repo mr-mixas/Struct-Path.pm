@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.11
+Version 0.12
 
 # SYNOPSIS
 
@@ -34,7 +34,7 @@ Nothing exports by default.
 
 ## spath
 
-Returns list of refs from structure.
+Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
 
@@ -42,7 +42,7 @@ Returns list of refs from structure.
 
 - delete
 
-    Delete specified by path items from structure.
+    Delete specified by path items from structure if set to true value.
 
 - deref
 
