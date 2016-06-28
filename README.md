@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.12
+Version 0.20
 
 # SYNOPSIS
 
@@ -20,7 +20,7 @@ Version 0.12
     @r = spath($s, [ [3,0,1] ]);
     # @r == (\undef, \0, \1)
 
-    @r = spath($s, [ [2],{2a => undef},{} ]);
+    @r = spath($s, [ [2],{keys => ['2a']},{} ]);
     # @r == (\2aav, \2abv)
 
     ${$r[0]} =~ s/2a/blah-blah-/;
@@ -50,7 +50,7 @@ Returns list of references from structure.
 
 - expand
 
-    Expand structure if specified in path items does't exists. All newly created items initialized by undef.
+    Expand structure if specified in path items does't exists. All newly created items initialized by `undef`.
 
 - strict
 

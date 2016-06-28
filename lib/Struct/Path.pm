@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.12
+Version 0.20
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.20';
 
 =head1 SYNOPSIS
 
@@ -34,7 +34,7 @@ our $VERSION = '0.12';
     @r = spath($s, [ [3,0,1] ]);
     # @r == (\undef, \0, \1)
 
-    @r = spath($s, [ [2],{2a => undef},{} ]);
+    @r = spath($s, [ [2],{keys => ['2a']},{} ]);
     # @r == (\2aav, \2abv)
 
     ${$r[0]} =~ s/2a/blah-blah-/;
@@ -66,7 +66,7 @@ Dereference result items if set to some true value.
 
 =item expand
 
-Expand structure if specified in path items does't exists. All newly created items initialized by undef.
+Expand structure if specified in path items does't exists. All newly created items initialized by C<undef>.
 
 =item strict
 
@@ -120,7 +120,9 @@ sub spath($$;@) {
                     }
                 }
                 if (keys %{$step}) {
-                    for my $key (sort { $step->{$a} <=> $step->{$b} } keys %{$step}) {
+                    croak "Unsupported HASH definition (step #$sc)"
+                        unless (exists $step->{keys} and ref $step->{keys} eq 'ARRAY');
+                    for my $key (@{$step->{keys}}) {
                         unless ($opts{expand} or exists ${$r}->{$key}) {
                             croak "Key '$key' doesn't exists in hash (step #$sc)" if $opts{strict};
                             next;

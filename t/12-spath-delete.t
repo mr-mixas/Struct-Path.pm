@@ -14,7 +14,7 @@ my (@r, $t);
 
 # delete single hash key
 $t = dclone($s_mixed);
-@r = spath($t, [ {b => 0} ], delete => 1);
+@r = spath($t, [ {keys => ['b']} ], delete => 1);
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],c => 'vc'},
@@ -29,7 +29,7 @@ ok(scmp(
 
 # delete single hash key, two steps
 $t = dclone($s_mixed);
-@r = spath($t, [ {b => 0},{ba => 0} ], delete => 1);
+@r = spath($t, [ {keys => ['b']},{keys => ['ba']} ], delete => 1);
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {bb => 'vbb'},c => 'vc'},
@@ -44,7 +44,7 @@ ok(scmp(
 
 # delete all hash substruct
 $t = dclone($s_mixed);
-@r = spath($t, [ {b => 0},{} ], delete => 1);
+@r = spath($t, [ {keys => ['b']},{} ], delete => 1);
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {},c => 'vc'},
@@ -59,7 +59,7 @@ ok(scmp(
 
 # delete single array item
 $t = dclone($s_mixed);
-@r = spath($t, [ {a => 0},[1] ], delete => 1);
+@r = spath($t, [ {keys => ['a']},[1] ], delete => 1);
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}}],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -74,7 +74,7 @@ ok(scmp(
 
 # delete several array items, asc
 $t = dclone($s_mixed);
-@r = spath($t, [ {a => 0},[0,1] ], delete => 1);
+@r = spath($t, [ {keys => ['a']},[0,1] ], delete => 1);
 ok(scmp(
     $t,
     {a => [],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -89,7 +89,7 @@ ok(scmp(
 
 # delete several array items, desc
 $t = dclone($s_mixed);
-@r = spath($t, [ {a => 0},[1,0] ], delete => 1);
+@r = spath($t, [ {keys => ['a']},[1,0] ], delete => 1);
 ok(scmp(
     $t,
     {a => [],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -104,7 +104,7 @@ ok(scmp(
 
 # delete deep single array item
 $t = dclone($s_mixed);
-@r = spath($t, [ {a => 0},[1],[1] ], delete => 1);
+@r = spath($t, [ {keys => ['a']},[1],[1] ], delete => 1);
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -119,7 +119,7 @@ ok(scmp(
 
 # delete all array's items
 $t = dclone($s_mixed);
-@r = spath($t, [ {a => 0},[1],[] ], delete => 1);
+@r = spath($t, [ {keys => ['a']},[1],[] ], delete => 1);
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},[]],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -134,7 +134,7 @@ ok(scmp(
 
 # empty array in the middle of the path
 $t = dclone($s_mixed);
-@r = spath($t, [ {a => 0},[],[1] ], delete => 1); # ok without 'strict'
+@r = spath($t, [ {keys => ['a']},[],[1] ], delete => 1); # ok without 'strict'
 ok(scmp(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},

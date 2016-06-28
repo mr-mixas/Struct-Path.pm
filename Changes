@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.20    2016-06-28
+        Path structure format changed (hashes definition)
+
 0.12    2016-06-13
         Pod and dist corrected
 
