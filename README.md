@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.20
+Version 0.21
 
 # SYNOPSIS
 
@@ -37,6 +37,22 @@ Nothing exports by default.
 Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
+
+### Addressing scheme
+
+It's simple: path is a list of 'steps', each represents nested level in passed structure. Arrayref as a step
+stands for ARRAY in structure and must contain desired indexes or be empty (means "all items"). Sequence for indexes
+is important and defines result sequence. Almost the same for HASHES - step must be a hashref, must contain key
+`keys` which value must contain list of desired keys in structure or may be empty (all keys). Sequence
+in `keys` list defines result sequence.
+
+So, different combinations of steps allows to reach different parts of structure.
+
+Weird? Why this needed?
+First of all: this addressing methos is mashine friendly. Second - it allows to specify exact address in structure
+without hardcoding it.
+
+See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) If you're like this approach, but interested in human friendly path definition method.
 
 ### Available options
 
@@ -99,7 +115,7 @@ You can also look for information at:
 [Data::Diver](https://metacpan.org/pod/Data::Diver) [Data::DPath](https://metacpan.org/pod/Data::DPath) [Data::DRef](https://metacpan.org/pod/Data::DRef) [Data::Focus](https://metacpan.org/pod/Data::Focus) [Data::Hierarchy](https://metacpan.org/pod/Data::Hierarchy) [Data::Nested](https://metacpan.org/pod/Data::Nested) [Data::PathSimple](https://metacpan.org/pod/Data::PathSimple)
 [Data::Reach](https://metacpan.org/pod/Data::Reach) [Data::Spath](https://metacpan.org/pod/Data::Spath) [JSON::Path](https://metacpan.org/pod/JSON::Path) [MarpaX::xPathLike](https://metacpan.org/pod/MarpaX::xPathLike) [Sereal::Path](https://metacpan.org/pod/Sereal::Path)
 
-[Struct::Diff](https://metacpan.org/pod/Struct::Diff)
+[Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) [Struct::Diff](https://metacpan.org/pod/Struct::Diff)
 
 # LICENSE AND COPYRIGHT
 

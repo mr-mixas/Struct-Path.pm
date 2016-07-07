@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.20
+Version 0.21
 
 =cut
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 =head1 SYNOPSIS
 
@@ -51,6 +51,22 @@ Nothing exports by default.
 Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
+
+=head3 Addressing scheme
+
+It's simple: path is a list of 'steps', each represents nested level in passed structure. Arrayref as a step
+stands for ARRAY in structure and must contain desired indexes or be empty (means "all items"). Sequence for indexes
+is important and defines result sequence. Almost the same for HASHES - step must be a hashref, must contain key
+C<keys> which value must contain list of desired keys in structure or may be empty (all keys). Sequence
+in C<keys> list defines result sequence.
+
+So, different combinations of steps allows to reach different parts of structure.
+
+Weird? Why this needed?
+First of all: this addressing methos is mashine friendly. Second - it allows to specify exact address in structure
+without hardcoding it.
+
+See L<Struct::Path::PerlStyle> If you're like this approach, but interested in human friendly path definition method.
 
 =head3 Available options
 
@@ -104,7 +120,7 @@ sub spath($$;@) {
                     }
                     map { splice(@{${$r}}, $_) } reverse sort @{$step} if ($opts{delete} and $sc + 1 == @{$path});
                 } else { # [] in the path
-                    for (my $i = @{${$r}} - 1; $i >= 0; $i--) {
+                    for (my $i = $#${$r}; $i >= 0; $i--) {
                         unshift @new, \${$r}->[$i];
                         splice(@{${$r}}, $i) if ($opts{delete} and $sc + 1 == @{$path});
                     }
@@ -194,7 +210,7 @@ L<http://search.cpan.org/dist/Struct-Path/>
 L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy> L<Data::Nested> L<Data::PathSimple>
 L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path>
 
-L<Struct::Diff>
+L<Struct::Path::PerlStyle> L<Struct::Diff>
 
 =head1 LICENSE AND COPYRIGHT
 
