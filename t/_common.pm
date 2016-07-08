@@ -5,7 +5,9 @@ package _common;
 use Data::Dumper;
 use parent qw(Exporter);
 
-our @EXPORT_OK = qw($s_mixed scmp);
+our @EXPORT_OK = qw($s_array $s_mixed scmp);
+
+our $s_array = [ 3, 1, 5, [9, [13], 7], 11];
 
 our $s_mixed = {
     'a' => [

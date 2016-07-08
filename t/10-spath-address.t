@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 18;
+use Test::More tests => 22;
 
 use Struct::Path qw(spath);
 
@@ -10,7 +10,7 @@ use Storable qw(freeze);
 $Storable::canonical = 1;
 
 use lib "t";
-use _common qw($s_mixed scmp);
+use _common qw($s_array $s_mixed scmp);
 
 my (@r, $frozen_s);
 
@@ -24,6 +24,18 @@ ok($@ =~ /^Path must be arrayref/);
 # struct must be a struct
 eval { spath(undef, []) };
 ok($@ =~ /^Stuct must be reference to ARRAY or HASH/);
+
+# struct must be a struct
+eval { spath($s_mixed, [ 'a' ]) };
+ok($@ =~ /^Unsupported thing in the path \(step #0\)/);
+
+# garbage in hash definition1
+eval { spath($s_mixed, [ {garbage => ['a']} ]) };
+ok($@ =~ /^Unsupported HASH definition \(step #0\)/); # must be error
+
+# garbage in hash definition1
+eval { spath($s_mixed, [ {keys => 'a'} ]) };
+ok($@ =~ /^Unsupported HASH definition \(step #0\)/); # must be error
 
 # out of range
 eval { spath($s_mixed, [ {keys => ['a']},[1000] ]) };
@@ -71,6 +83,14 @@ ok(scmp(
     [ sort { ${$a} cmp ${$b} } @r ], # access via keys, which returns keys with random order, that's why sort result here
     [\'vba',\'vbb'],
     "get {b}{}"
+));
+
+# result must have right sequence
+@r = spath($s_array, [ [3],[1] ]);
+ok(scmp(
+    \@r,
+    [\[13]],
+    "get [3],[1] from s_array"
 ));
 
 # result must have right sequence
