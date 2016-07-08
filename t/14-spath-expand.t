@@ -16,15 +16,15 @@ my (@r, $tmp);
 
 $tmp = \undef;
 eval { @r = spath($tmp, [ {keys => ['a']},[3] ], expand => 1) };
-ok($@ =~ /^Stuct must be reference to ARRAY or HASH at/);            # Allow here to expand from undef?
+ok($@ =~ /^Stuct must be reference to ARRAY or HASH/);            # Allow here to expand from undef?
 
 $tmp = dclone($s_mixed);
 eval { @r = spath($tmp, [ {keys => ['b']},[0] ], expand => 1) };
-ok($@ =~ /^Passed struct doesn't match provided path \(array expected on step #1\) at/);
+ok($@ =~ /^Passed struct doesn't match provided path \(array expected on step #1\)/);
 
 $tmp = dclone($s_mixed);
 eval { @r = spath($tmp, [ {keys => ['a']},[1],{keys => ['a1a']} ], expand => 1) };
-ok($@ =~ /^Passed struct doesn't match provided path/);
+ok($@ =~ /^Passed struct doesn't match provided path \(hash expected on step #2\)/);
 
 ### ARRAYS ###
 
