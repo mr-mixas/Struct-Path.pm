@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 use Struct::Path qw(spath);
 
@@ -37,6 +37,14 @@ ok($@ =~ /^Unsupported HASH definition \(step #0\)/); # must be error
 eval { spath($s_mixed, [ {keys => 'a'} ]) };
 ok($@ =~ /^Unsupported HASH definition \(step #0\)/); # must be error
 
+# wrong step type, strict
+eval { spath($s_mixed, [ [0] ], strict => 1) };
+ok($@ =~ /^Passed struct doesn't match provided path \(array expected on step #0\)/);
+
+# wrong step type, strict 2
+eval { spath($s_array, [ {keys => 'a'} ], strict => 1) };
+ok($@ =~ /^Passed struct doesn't match provided path \(hash expected on step #0\)/);
+
 # out of range
 eval { spath($s_mixed, [ {keys => ['a']},[1000] ]) };
 ok(!$@); # must be no error
@@ -44,10 +52,6 @@ ok(!$@); # must be no error
 # out of range, but strict opt used
 eval { spath($s_mixed, [ {keys => ['a']},[1000] ], strict => 1) };
 ok($@); # must be error
-
-# wrong step type, strict
-eval { spath($s_mixed, [ [0] ], strict => 1) };
-ok($@);
 
 # hash key doesn't exists
 eval { spath($s_mixed, [ {keys => ['notexists']} ]) };
