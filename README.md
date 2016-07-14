@@ -49,10 +49,10 @@ in `keys` list defines result sequence.
 So, different combinations of steps allows to reach different parts of structure.
 
 Weird? Why this needed?
-First of all: this addressing methos is mashine friendly. Second - it allows to specify exact address in structure
+First: this addressing methos is mashine friendly. Second: it allows to specify exact address in structure
 without hardcoding it.
 
-See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) If you're like this approach, but interested in human friendly path definition method.
+See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're like this approach, but interested in human friendly path definition method.
 
 ### Available options
 
