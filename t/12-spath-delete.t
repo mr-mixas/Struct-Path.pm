@@ -3,7 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Storable qw(dclone);
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 use Struct::Path qw(spath);
 
@@ -54,6 +54,21 @@ ok(scmp(
 ok(scmp(
     [ sort { ${$a} cmp ${$b} } @r ], # hash keys returned by hash seed (ie randomely, so, sort them)
     [\'vba',\'vbb'],
+    "delete {b}{}:: check returned value"
+));
+
+# delete hash substruct with {} in the middle of the path
+$t = dclone($s_mixed);
+@r = spath($t, [ {keys => ['a']},[0],{},{keys => ['a2ba']} ], delete => 1);
+ok(scmp(
+    $t,
+    {a => [{a2a => {a2aa => 0},a2b => {},a2c => {a2ca => []}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+    "delete {b}{}"
+));
+
+ok(scmp(
+    [ sort { ${$a} cmp ${$b} } @r ], # hash keys returned by hash seed (ie randomely, so, sort them)
+    [\undef],
     "delete {b}{}:: check returned value"
 ));
 
