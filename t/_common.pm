@@ -5,9 +5,11 @@ package _common;
 use Data::Dumper;
 use parent qw(Exporter);
 
-our @EXPORT_OK = qw($s_array $s_mixed scmp);
+our @EXPORT_OK = qw($s_array $s_hash $s_mixed scmp);
 
 our $s_array = [ 3, 1, 5, [9, [13], 7], 11];
+
+our $s_hash = {a => 'av', b => {ba => 'vba', vb => 'vbb'}, c => {}};
 
 our $s_mixed = {
     'a' => [
@@ -26,8 +28,8 @@ our $s_mixed = {
 };
 
 sub scmp($$$) { # compare structures by data
-    my $got = Data::Dumper->new([shift])->Terse(1)->Sortkeys(1)->Quotekeys(0)->Indent(0)->Dump();
-    my $exp = Data::Dumper->new([shift])->Terse(1)->Sortkeys(1)->Quotekeys(0)->Indent(0)->Dump();
+    my $got = Data::Dumper->new([shift])->Terse(1)->Sortkeys(1)->Quotekeys(0)->Indent(0)->Deepcopy(1)->Dump();
+    my $exp = Data::Dumper->new([shift])->Terse(1)->Sortkeys(1)->Quotekeys(0)->Indent(0)->Deepcopy(1)->Dump();
     print STDERR "\nDEBUG: === " . shift . " ===\ngot: $got\nexp: $exp\n" if ($ENV{DEBUG});
     return $got eq $exp;
 }
