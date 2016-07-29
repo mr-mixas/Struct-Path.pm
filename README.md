@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.21
+Version 0.30
 
 # SYNOPSIS
 
@@ -13,9 +13,18 @@ Version 0.21
     $s = [
         0,
         1,
-        {2a => {2aa => '2aav', 2ab => '2abv'}},
+        {'2a' => {'2aa' => '2aav', '2ab' => '2abv'}},
         undef
     ];
+
+    @list = slist($s);              # get all paths and their values
+    # @list == (
+    #    [[[0]],0],
+    #    [[[1]],1],
+    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],'2aav'],
+    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],'2abv'],
+    #    [[[3]],undef]
+    # )
 
     @r = spath($s, [ [3,0,1] ]);
     # @r == (\undef, \0, \1)
@@ -31,6 +40,18 @@ Version 0.21
 Nothing exports by default.
 
 # SUBROUTINES
+
+## slist
+
+Returns list of paths and their values from structure.
+
+    @list = slist($struct, %opts)
+
+### Available options
+
+- depth
+
+    Don't dive into structure deeper than defined level
 
 ## spath
 

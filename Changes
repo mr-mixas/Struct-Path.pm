@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.30    2016-07-30
+        slist() appeared
+
 0.21    2016-07-07
         Addressing method in pod described
         Unsignificant refactoring

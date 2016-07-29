@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use parent qw(Exporter);
 use Carp qw(croak);
 
-our @EXPORT_OK = qw(spath);
+our @EXPORT_OK = qw(slist spath);
 
 =head1 NAME
 
@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.21
+Version 0.30
 
 =cut
 
-our $VERSION = '0.21';
+our $VERSION = '0.30';
 
 =head1 SYNOPSIS
 
@@ -27,9 +27,18 @@ our $VERSION = '0.21';
     $s = [
         0,
         1,
-        {2a => {2aa => '2aav', 2ab => '2abv'}},
+        {'2a' => {'2aa' => '2aav', '2ab' => '2abv'}},
         undef
     ];
+
+    @list = slist($s);              # get all paths and their values
+    # @list == (
+    #    [[[0]],0],
+    #    [[[1]],1],
+    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],'2aav'],
+    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],'2abv'],
+    #    [[[3]],undef]
+    # )
 
     @r = spath($s, [ [3,0,1] ]);
     # @r == (\undef, \0, \1)
@@ -45,6 +54,56 @@ our $VERSION = '0.21';
 Nothing exports by default.
 
 =head1 SUBROUTINES
+
+=head2 slist
+
+Returns list of paths and their values from structure.
+
+    @list = slist($struct, %opts)
+
+=head3 Available options
+
+=over 4
+
+=item depth
+
+Don't dive into structure deeper than defined level
+
+=back
+
+=cut
+
+sub slist($;@) {
+    my ($struct, %opts) = @_;
+    my @list = ([[], $struct]); # init: [path, lastref]
+
+    my $continue = 1;
+    my $depth = 0;
+    while ($continue) {
+        last if (defined $opts{depth} and $depth >= $opts{depth});
+        $continue = 0;
+        my @new;
+        while (my $path = shift @list) {
+            if (ref $path->[1] eq 'ARRAY' and @{$path->[1]}) {
+                for (my $i = 0; $i < @{$path->[1]}; $i++) {
+                    push @new, [[@{$path->[0]}, [$i]], $path->[1]->[$i]];
+                }
+                $continue = 1;
+            } elsif (ref $path->[1] eq 'HASH' and keys %{$path->[1]}) {
+                for my $k (sort keys %{$path->[1]}) {
+                    push @new, [[@{$path->[0]}, {keys => [$k]}], $path->[1]->{$k}];
+                }
+                $continue = 1;
+            } else {
+                push @new, $path; # complete path
+            }
+        }
+        @list = @new;
+        $depth++;
+    }
+
+    return @list;
+}
 
 =head2 spath
 
