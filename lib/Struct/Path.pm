@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.30
+Version 0.31
 
 =cut
 
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 =head1 SYNOPSIS
 
@@ -31,7 +31,7 @@ our $VERSION = '0.30';
         undef
     ];
 
-    @list = slist($s);              # get all paths and their values
+    @list = slist($s);                              # get all paths and their values
     # @list == (
     #    [[[0]],0],
     #    [[[1]],1],
@@ -40,18 +40,18 @@ our $VERSION = '0.30';
     #    [[[3]],undef]
     # )
 
-    @r = spath($s, [ [3,0,1] ]);
+    @r = spath($s, [ [3,0,1] ]);                    # get refs to values by paths
     # @r == (\undef, \0, \1)
 
-    @r = spath($s, [ [2],{keys => ['2a']},{} ]);
-    # @r == (\2aav, \2abv)
+    @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # same, another example
+    # @r == (\'2aav', \'2abv')
 
-    ${$r[0]} =~ s/2a/blah-blah-/;
-    # $s->[2]{2a}{2aa} == "blah-blah-av"
+    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path
+    # $s->[2]{2a}{2aa} eq "blah-blah-av"
 
 =head1 EXPORT
 
-Nothing exports by default.
+Nothing is exported by default.
 
 =head1 SUBROUTINES
 
@@ -65,9 +65,9 @@ Returns list of paths and their values from structure.
 
 =over 4
 
-=item depth
+=item depth <N>
 
-Don't dive into structure deeper than defined level
+Don't dive into structure deeper than defined level.
 
 =back
 
@@ -111,39 +111,38 @@ Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
 
-=head3 Addressing scheme
+=head3 Addressing method
 
-It's simple: path is a list of 'steps', each represents nested level in passed structure. Arrayref as a step
+It's simple: path is a list of 'steps', each represents nested level in structure. Arrayref as a step
 stands for ARRAY in structure and must contain desired indexes or be empty (means "all items"). Sequence for indexes
 is important and defines result sequence. Almost the same for HASHES - step must be a hashref, must contain key
 C<keys> which value must contain list of desired keys in structure or may be empty (all keys). Sequence
 in C<keys> list defines result sequence.
 
-So, different combinations of steps allows to reach different parts of structure.
+Why existed *Path* libs (L</"SEE ALSO">) not enough?
+This scheme has no collisions for paths like '/a/0/c' ('0' may be an array index or a key for hash, depends on passed
+structure). In some cases this is important, for example, when you want to define exact path in structure, but
+unable to validate it's schema.
 
-Weird? Why this needed?
-First: this addressing methos is mashine friendly. Second: it allows to specify exact address in structure
-without hardcoding it.
-
-See L<Struct::Path::PerlStyle> if you're like this approach, but interested in human friendly path definition method.
+See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition method.
 
 =head3 Available options
 
 =over 4
 
-=item delete
+=item delete <true|false>
 
 Delete specified by path items from structure if set to true value.
 
-=item deref
+=item deref <true|false>
 
 Dereference result items if set to some true value.
 
-=item expand
+=item expand <true|false>
 
 Expand structure if specified in path items does't exists. All newly created items initialized by C<undef>.
 
-=item strict
+=item strict <true|false>
 
 Croak if at least one element, specified in path, absent in the struct.
 
@@ -269,7 +268,7 @@ L<http://search.cpan.org/dist/Struct-Path/>
 L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy> L<Data::Nested> L<Data::PathSimple>
 L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path>
 
-L<Struct::Path::PerlStyle> L<Struct::Diff>
+L<Struct::Diff> L<Struct::Path::PerlStyle>
 
 =head1 LICENSE AND COPYRIGHT
 

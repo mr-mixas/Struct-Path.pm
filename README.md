@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.30
+Version 0.31
 
 # SYNOPSIS
 
@@ -17,7 +17,7 @@ Version 0.30
         undef
     ];
 
-    @list = slist($s);              # get all paths and their values
+    @list = slist($s);                              # get all paths and their values
     # @list == (
     #    [[[0]],0],
     #    [[[1]],1],
@@ -26,18 +26,18 @@ Version 0.30
     #    [[[3]],undef]
     # )
 
-    @r = spath($s, [ [3,0,1] ]);
+    @r = spath($s, [ [3,0,1] ]);                    # get refs to values by paths
     # @r == (\undef, \0, \1)
 
-    @r = spath($s, [ [2],{keys => ['2a']},{} ]);
-    # @r == (\2aav, \2abv)
+    @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # same, another example
+    # @r == (\'2aav', \'2abv')
 
-    ${$r[0]} =~ s/2a/blah-blah-/;
-    # $s->[2]{2a}{2aa} == "blah-blah-av"
+    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path
+    # $s->[2]{2a}{2aa} eq "blah-blah-av"
 
 # EXPORT
 
-Nothing exports by default.
+Nothing is exported by default.
 
 # SUBROUTINES
 
@@ -49,9 +49,9 @@ Returns list of paths and their values from structure.
 
 ### Available options
 
-- depth
+- depth <N>
 
-    Don't dive into structure deeper than defined level
+    Don't dive into structure deeper than defined level.
 
 ## spath
 
@@ -59,37 +59,36 @@ Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
 
-### Addressing scheme
+### Addressing method
 
-It's simple: path is a list of 'steps', each represents nested level in passed structure. Arrayref as a step
+It's simple: path is a list of 'steps', each represents nested level in structure. Arrayref as a step
 stands for ARRAY in structure and must contain desired indexes or be empty (means "all items"). Sequence for indexes
 is important and defines result sequence. Almost the same for HASHES - step must be a hashref, must contain key
 `keys` which value must contain list of desired keys in structure or may be empty (all keys). Sequence
 in `keys` list defines result sequence.
 
-So, different combinations of steps allows to reach different parts of structure.
+Why existed \*Path\* libs (["SEE ALSO"](#see-also)) not enough?
+This scheme has no collisions for paths like '/a/0/c' ('0' may be an array index or a key for hash, depends on passed
+structure). In some cases this is important, for example, when you want to define exact path in structure, but
+unable to validate it's schema.
 
-Weird? Why this needed?
-First: this addressing methos is mashine friendly. Second: it allows to specify exact address in structure
-without hardcoding it.
-
-See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're like this approach, but interested in human friendly path definition method.
+See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition method.
 
 ### Available options
 
-- delete
+- delete <true|false>
 
     Delete specified by path items from structure if set to true value.
 
-- deref
+- deref <true|false>
 
     Dereference result items if set to some true value.
 
-- expand
+- expand <true|false>
 
     Expand structure if specified in path items does't exists. All newly created items initialized by `undef`.
 
-- strict
+- strict <true|false>
 
     Croak if at least one element, specified in path, absent in the struct.
 
@@ -136,7 +135,7 @@ You can also look for information at:
 [Data::Diver](https://metacpan.org/pod/Data::Diver) [Data::DPath](https://metacpan.org/pod/Data::DPath) [Data::DRef](https://metacpan.org/pod/Data::DRef) [Data::Focus](https://metacpan.org/pod/Data::Focus) [Data::Hierarchy](https://metacpan.org/pod/Data::Hierarchy) [Data::Nested](https://metacpan.org/pod/Data::Nested) [Data::PathSimple](https://metacpan.org/pod/Data::PathSimple)
 [Data::Reach](https://metacpan.org/pod/Data::Reach) [Data::Spath](https://metacpan.org/pod/Data::Spath) [JSON::Path](https://metacpan.org/pod/JSON::Path) [MarpaX::xPathLike](https://metacpan.org/pod/MarpaX::xPathLike) [Sereal::Path](https://metacpan.org/pod/Sereal::Path)
 
-[Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) [Struct::Diff](https://metacpan.org/pod/Struct::Diff)
+[Struct::Diff](https://metacpan.org/pod/Struct::Diff) [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle)
 
 # LICENSE AND COPYRIGHT
 
