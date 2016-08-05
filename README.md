@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.31
+Version 0.32
 
 # SYNOPSIS
 
@@ -78,11 +78,11 @@ See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) 
 
 - delete <true|false>
 
-    Delete specified by path items from structure if set to true value.
+    Delete specified by path items from structure.
 
 - deref <true|false>
 
-    Dereference result items if set to some true value.
+    Dereference result items.
 
 - expand <true|false>
 

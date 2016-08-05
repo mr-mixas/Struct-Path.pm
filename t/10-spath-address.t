@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 use Struct::Path qw(spath);
 
@@ -21,11 +21,7 @@ $frozen_s = freeze($s_mixed);
 eval { spath($s_mixed, undef) };
 ok($@ =~ /^Path must be arrayref/);
 
-# struct must be a struct
-eval { spath(undef, []) };
-ok($@ =~ /^Stuct must be reference to ARRAY or HASH/);
-
-# struct must be a struct
+# garbage in the path
 eval { spath($s_mixed, [ 'a' ]) };
 ok($@ =~ /^Unsupported thing in the path \(step #0\)/);
 
@@ -72,6 +68,23 @@ ok(!@r);
 # must return full struct
 @r = spath($s_mixed, []);
 ok($frozen_s = freeze(${$r[0]}));
+
+# nonref as a structure
+@r = spath(undef, []);
+ok(scmp(
+    \@r,
+    [\undef],
+    "nonref as a structure"
+));
+
+# blessed thing as a structure
+my $t = bless {}, "Thing";
+@r = spath($t, []);
+ok(scmp(
+    \@r,
+    [bless( {}, 'Thing' )],
+    "blessed thing as a structure"
+));
 
 # get
 @r = spath($s_mixed, [ {keys => ['b']} ]);

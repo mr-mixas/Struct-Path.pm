@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.31
+Version 0.32
 
 =cut
 
-our $VERSION = '0.31';
+our $VERSION = '0.32';
 
 =head1 SYNOPSIS
 
@@ -132,11 +132,11 @@ See L<Struct::Path::PerlStyle> if you're looking for human friendly path definit
 
 =item delete <true|false>
 
-Delete specified by path items from structure if set to true value.
+Delete specified by path items from structure.
 
 =item deref <true|false>
 
-Dereference result items if set to some true value.
+Dereference result items.
 
 =item expand <true|false>
 
@@ -152,9 +152,8 @@ Croak if at least one element, specified in path, absent in the struct.
 
 sub spath($$;@) {
     my ($struct, $path, %opts) = @_;
-    croak "Stuct must be reference to ARRAY or HASH" unless (ref $struct eq 'ARRAY' or ref $struct eq 'HASH');
     croak "Path must be arrayref" unless (ref $path eq 'ARRAY');
-    my $refs = [ \$struct ]; # init
+    my $refs = (ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ? [ \$struct ] : [ $struct ]; #init
 
     my $sc = 0; # step counter
     for my $step (@{$path}) {
@@ -168,6 +167,7 @@ sub spath($$;@) {
                         next;
                     }
                 }
+
                 if (@{$step}) {
                     for my $i (@{$step}) {
                         unless ($opts{expand} or @{${$r}} > $i) {
