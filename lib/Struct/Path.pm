@@ -65,7 +65,7 @@ Returns list of paths and their values from structure.
 
 =over 4
 
-=item depth <N>
+=item depth C<< <N> >>
 
 Don't dive into structure deeper than defined level.
 
@@ -130,19 +130,19 @@ See L<Struct::Path::PerlStyle> if you're looking for human friendly path definit
 
 =over 4
 
-=item delete <true|false>
+=item delete C<< <true|false> >>
 
 Delete specified by path items from structure.
 
-=item deref <true|false>
+=item deref C<< <true|false> >>
 
 Dereference result items.
 
-=item expand <true|false>
+=item expand C<< <true|false> >>
 
 Expand structure if specified in path items does't exists. All newly created items initialized by C<undef>.
 
-=item strict <true|false>
+=item strict C<< <true|false> >>
 
 Croak if at least one element, specified in path, absent in the struct.
 

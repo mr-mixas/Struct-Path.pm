@@ -49,7 +49,7 @@ Returns list of paths and their values from structure.
 
 ### Available options
 
-- depth <N>
+- depth `<N>`
 
     Don't dive into structure deeper than defined level.
 
@@ -76,19 +76,19 @@ See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) 
 
 ### Available options
 
-- delete <true|false>
+- delete `<true|false>`
 
     Delete specified by path items from structure.
 
-- deref <true|false>
+- deref `<true|false>`
 
     Dereference result items.
 
-- expand <true|false>
+- expand `<true|false>`
 
     Expand structure if specified in path items does't exists. All newly created items initialized by `undef`.
 
-- strict <true|false>
+- strict `<true|false>`
 
     Croak if at least one element, specified in path, absent in the struct.
 
