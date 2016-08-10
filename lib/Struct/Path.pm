@@ -86,7 +86,7 @@ sub slist($;@) {
         while (my $path = shift @list) {
             if (ref $path->[1] eq 'ARRAY' and @{$path->[1]}) {
                 for (my $i = 0; $i < @{$path->[1]}; $i++) {
-                    push @new, [[@{$path->[0]}, [$i + 0]], $path->[1]->[$i]]; # $i + 0 -- for perl 5.006
+                    push @new, [[@{$path->[0]}, [$i]], $path->[1]->[$i]];
                 }
                 $continue = 1;
             } elsif (ref $path->[1] eq 'HASH' and keys %{$path->[1]}) {
