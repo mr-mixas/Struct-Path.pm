@@ -1,6 +1,5 @@
 language: perl
 perl:
-  - "5.6.2"
   - "5.8.1"
   - "5.8.9"
   - "5.10.0"
@@ -15,6 +14,8 @@ matrix:
   include:
     - perl: 5.18.2
       env: COVERAGE=1
+    - perl: 5.6.2
+      env: DEBUG=1
 before_install:
   - git clone git://github.com/haarg/perl-travis-helper
   - source perl-travis-helper/init
