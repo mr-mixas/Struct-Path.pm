@@ -2,14 +2,6 @@ Struct-Path
 
 Path lib for nested structures where path is also a structure
 
-There are two main reasosns why such wheel as Path reinvented again:
-1.  Because of existed libs use bare strings as items indicators,
-    it's possible for collisions to occur. Example: '/a/0/c' may be path
-    for both {a => [{c => x}]} and {a => {0 => {c => x}}}.
-2.  There is no module on CPAN (at least I failed to find such) which
-    use perl structure for a path (useful, for example, in JSON conf files,
-    in inter process communications, etc).
-
 INSTALLATION
 
 To install this module, run the following commands:
