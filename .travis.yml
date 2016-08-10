@@ -2,20 +2,19 @@ language: perl
 perl:
   - "5.8.1"
   - "5.8.9"
-  - "5.10.0"
   - "5.10.1"
   - "5.12"
   - "5.14"
   - "5.16"
   - "5.18"
   - "5.20"
-  - "blead"
+  - "5.22"
+  - "5.24"
+  - "dev"
 matrix:
   include:
     - perl: 5.18.2
       env: COVERAGE=1
-    - perl: 5.6.2
-      env: DEBUG=1
 before_install:
   - git clone git://github.com/haarg/perl-travis-helper
   - source perl-travis-helper/init
@@ -31,5 +30,6 @@ before_script:
   - coverage-setup
 script:
   - prove -l $(test-dirs)
+sudo: false
 after_success:
   - coverage-report
