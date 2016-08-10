@@ -4,6 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 use Test::More tests => 10;
+use Test::Deep;
 
 use Struct::Path qw(slist);
 
@@ -11,14 +12,15 @@ use Storable qw(freeze);
 $Storable::canonical = 1;
 
 use lib "t";
-use _common qw($s_array $s_hash $s_mixed scmp);
+use _common qw($s_array $s_hash $s_mixed);
 
 my (@list, $frozen);
 
 $frozen = freeze($s_array);
 
 @list = slist($s_array);
-ok(scmp(
+
+cmp_deeply(
     \@list,
     [
         [[[0]],3],
@@ -30,12 +32,12 @@ ok(scmp(
         [[[4]],11]
     ],
     "List AoA struct"
-));
+);
 ok(freeze($s_array) eq $frozen);
 
 $frozen = freeze($s_hash);
 @list = slist($s_hash);
-ok(scmp(
+cmp_deeply(
     \@list,
     [
         [[{keys => ['a']}],'av'],
@@ -44,13 +46,13 @@ ok(scmp(
         [[{keys => ['c']}],{}]
     ],
     "List HoH struct"
-));
+);
 ok(freeze($s_hash) eq $frozen);
 
 $frozen = freeze($s_mixed);
 
 @list = slist($s_mixed);
-ok(scmp(
+cmp_deeply(
     \@list,
     [
         [[{keys => ['a']},[0],{keys => ['a2a']},{keys => ['a2aa']}],0],
@@ -63,10 +65,10 @@ ok(scmp(
         [[{keys => ['c']}],'vc']
     ],
     "List for mixed struct"
-));
+);
 
 @list = slist($s_mixed, depth => 0); # depth 0 == whole struct
-ok(scmp(
+cmp_deeply(
     \@list,
     [
         [
@@ -79,10 +81,10 @@ ok(scmp(
         ]
     ],
     "List mixed struct, depth 0"
-));
+);
 
 @list = slist($s_mixed, depth => 1);
-ok(scmp(
+cmp_deeply(
     \@list,
     [
         [[{keys => ['a']}],[{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']]],
@@ -90,10 +92,10 @@ ok(scmp(
         [[{keys => ['c']}],'vc']
     ],
     "List mixed struct, depth 1"
-));
+);
 
 @list = slist($s_mixed, depth => 3);
-ok(scmp(
+cmp_deeply(
     \@list,
     [
         [[{keys => ['a']},[0],{keys => ['a2a']}],{a2aa => 0}],
@@ -106,10 +108,10 @@ ok(scmp(
         [[{keys => ['c']}],'vc']
     ],
     "List mixed struct, depth 3"
-));
+);
 
 @list = slist($s_mixed, depth => 100);
-ok(scmp(
+cmp_deeply(
     \@list,
     [
         [[{keys => ['a']},[0],{keys => ['a2a']},{keys => ['a2aa']}],0],
@@ -122,6 +124,6 @@ ok(scmp(
         [[{keys => ['c']}],'vc']
     ],
     "List mixed struct, depth 100"
-));
+);
 
 ok(freeze($s_mixed) eq $frozen);

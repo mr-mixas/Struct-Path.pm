@@ -4,13 +4,14 @@ use 5.006;
 use strict;
 use warnings;
 use Test::More tests => 8;
+use Test::Deep;
 
 use Struct::Path qw(spath);
 
 use Storable qw(dclone);
 
 use lib "t";
-use _common qw($s_mixed scmp);
+use _common qw($s_mixed);
 
 my (@r, $tmp);
 
@@ -24,17 +25,17 @@ ok($@ =~ /^Passed struct doesn't match provided path \(hash expected on step #2\
 
 $tmp = undef;
 @r = spath(\$tmp, [ {keys => ['a']},[3] ], expand => 1);
-ok(scmp(
+cmp_deeply(
     $tmp,
     {a => [undef,undef,undef,undef]},
     "expand undef to {a}[3]"
-));
+);
 
 ### ARRAYS ###
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['a']},[3] ], expand => 1);
-ok(scmp(
+cmp_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1'],undef,undef],
@@ -42,11 +43,11 @@ ok(scmp(
         c => 'vc'
     },
     "create {a}[3]"
-));
+);
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['a']},[3],[1] ], expand => 1);
-ok(scmp(
+cmp_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1'],undef,[undef,undef]],
@@ -54,13 +55,13 @@ ok(scmp(
         c => 'vc'
     },
     "create {a}[3][1]"
-));
+);
 
 ### HASHES ###
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['d']} ], expand => 1);
-ok(scmp(
+cmp_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
@@ -68,11 +69,11 @@ ok(scmp(
         c => 'vc',d => undef
     },
     "create {d}"
-));
+);
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['d']},{keys => ['da', 'db']} ], expand => 1);
-ok(scmp(
+cmp_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
@@ -81,14 +82,14 @@ ok(scmp(
         d => {da => undef,db => undef}
     },
     "create {d}{da,db}"
-));
+);
 
 ### MIXED ###
 
 $tmp = {};
 @r = spath($tmp, [ {keys => ['a']},[0,3],{keys => ['ana', 'anb']},[1] ], expand => 1);
-ok(scmp(
+cmp_deeply(
     $tmp,
     {a => [{ana => [undef,undef],anb => [undef,undef]},undef,undef,{ana => [undef,undef],anb => [undef,undef]}]},
     "expand {a}[0,3]{ana,anb}[1]"
-));
+);

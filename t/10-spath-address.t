@@ -3,6 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Test::More tests => 24;
+use Test::Deep;
 
 use Struct::Path qw(spath);
 
@@ -10,7 +11,7 @@ use Storable qw(freeze);
 $Storable::canonical = 1;
 
 use lib "t";
-use _common qw($s_array $s_mixed scmp);
+use _common qw($s_array $s_mixed);
 
 my (@r, $frozen_s);
 
@@ -71,76 +72,76 @@ ok($frozen_s = freeze(${$r[0]}));
 
 # nonref as a structure
 @r = spath(undef, []);
-ok(scmp(
+cmp_deeply(
     \@r,
     [\undef],
     "nonref as a structure"
-));
+);
 
 # blessed thing as a structure
 my $t = bless {}, "Thing";
 @r = spath($t, []);
-ok(scmp(
+cmp_deeply(
     \@r,
     [bless( {}, 'Thing' )],
     "blessed thing as a structure"
-));
+);
 
 # get
 @r = spath($s_mixed, [ {keys => ['b']} ]);
-ok(scmp(
+cmp_deeply(
     \@r,
     [\{ba => 'vba',bb => 'vbb'}],
     "get {b}"
-));
+);
 
 # here must be all b's subkeys values
 @r = spath($s_mixed, [ {keys => ['b']},{} ]);
-ok(scmp(
+cmp_deeply(
     [ sort { ${$a} cmp ${$b} } @r ], # access via keys, which returns keys with random order, that's why sort result here
     [\'vba',\'vbb'],
     "get {b}{}"
-));
+);
 
 # result must have right sequence
 @r = spath($s_array, [ [3],[1] ]);
-ok(scmp(
+cmp_deeply(
     \@r,
     [\[13]],
     "get [3],[1] from s_array"
-));
+);
 
 # result must have right sequence
 @r = spath($s_mixed, [ {keys => ['a']},[1],[1, 0] ]);
-ok(scmp(
+cmp_deeply(
     \@r,
     [\'a1',\'a0'],
     "get {a}[1][1,0]"
-));
+);
 
 # result must contain all items from last step
 @r = spath($s_mixed, [ {keys => ['a']},[1],[] ]);
-ok(scmp(
+cmp_deeply(
     \@r,
     [\'a0',\'a1'],
     "get {a}[1][]"
-));
+);
 
 # dereference result
 @r = spath($s_mixed, [ {keys => ['a']},[1],[] ], deref => 1);
-ok(scmp(
+cmp_deeply(
     \@r,
     ['a0','a1'],
     "get {a}[1][], deref=1"
-));
+);
 
 # mixed structures
 @r = spath($s_mixed, [ {keys => ['a']},[0],{keys => ['a2c']} ]);
-ok(scmp(
+cmp_deeply(
     \@r,
     [\{a2ca => []}],
     "get {a}[0]{a2c}"
-));
+);
 
 # original structure must remain unchanged
 ok($frozen_s eq freeze($s_mixed));
@@ -149,7 +150,7 @@ ok($frozen_s eq freeze($s_mixed));
 ### set tests ###
 @r = spath($s_mixed, [ {keys => ['c']} ]);
 ${$r[0]} = "vc_replaced";
-ok(scmp(
+cmp_deeply(
     $s_mixed,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
@@ -157,5 +158,4 @@ ok(scmp(
         c => 'vc_replaced'
     },
     "replace {c}"
-));
-
+);

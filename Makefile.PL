@@ -15,8 +15,8 @@ WriteMakefile(
         'ExtUtils::MakeMaker' => 0,
     },
     BUILD_REQUIRES => {
-        'Data::Dumper'  => 2.122,
         'Storable'      => 2.01,
+        'Test::Deep'    => 0,
         'Test::More'    => 0,
     },
     META_MERGE => {
