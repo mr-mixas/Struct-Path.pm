@@ -25,6 +25,7 @@ before_install:
   - cd $BUILD_DIR
 install:
   - cpan-install --toolchain
+  - cpan-install Test::Deep
   - cpan-install --deps
   - cpan-install --coverage
 before_script:
@@ -34,3 +35,5 @@ script:
 sudo: false
 after_success:
   - coverage-report
+notifications:
+  email: false
