@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.33    2016-08-11
+        Dist corrected, tests refactored
+
 0.32    2016-08-05
         Any thing as a structure accepted by spath() from now on
 
