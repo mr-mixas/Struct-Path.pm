@@ -34,5 +34,5 @@ WriteMakefile(
         COMPRESS => 'gzip -9f',
         SUFFIX => 'gz',
     },
-    clean => { FILES => 'Struct-Path-*' },
+    clean => { FILES => 'Struct-Path-* cover_db' },
 );
