@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use parent qw(Exporter);
 use Carp qw(croak);
 
-our @EXPORT_OK = qw(slist spath);
+our @EXPORT_OK = qw(slist spath spath_delta);
 
 =head1 NAME
 
@@ -14,20 +14,25 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.33
+Version 0.40
 
 =cut
 
-our $VERSION = '0.33';
+our $VERSION = '0.40';
 
 =head1 SYNOPSIS
 
-    use Struct::Path qw(spath);
+    use Struct::Path qw(slist spath spath_delta);
 
     $s = [
         0,
         1,
-        {'2a' => {'2aa' => '2aav', '2ab' => '2abv'}},
+        {
+            '2a' => {
+                '2aa' => '2aav',
+                '2ab' => '2abv'
+            }
+        },
         undef
     ];
 
@@ -48,6 +53,9 @@ our $VERSION = '0.33';
 
     ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path
     # $s->[2]{2a}{2aa} eq "blah-blah-av"
+
+    @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # new steps relatively for first path
+    # @d == ([1],[3])
 
 =head1 EXPORT
 
@@ -219,6 +227,51 @@ sub spath($$;@) {
     }
 
     return $opts{deref} ? map { $_ = ${$_} } @{$refs} : @{$refs};
+}
+
+=head2 spath_delta
+
+Returns delta for two passed paths.
+
+    @delta = spath_delta($path1, $path2)
+
+=cut
+
+sub spath_delta($$) {
+    my ($frst, $scnd) = @_;
+
+    croak "Second path must be an arrayref" unless (ref $scnd eq 'ARRAY');
+    if (defined $frst) {
+        croak "First path may be undef or an arrayref" unless (ref $frst eq 'ARRAY');
+        return @{$scnd} if (@{$scnd} < @{$frst});
+    } else {
+        return @{$scnd};
+    }
+
+    my $i = 0;
+    MAIN: while ($i < @{$frst}) {
+        last unless (ref $frst->[$i] eq ref $scnd->[$i]);
+        if (ref $frst->[$i] eq 'ARRAY') {
+            last unless (@{$frst->[$i]} == @{$scnd->[$i]});
+            my $j = 0;
+            while ($j < @{$frst->[$i]}) {
+                last MAIN unless ($frst->[$i]->[$j] == $scnd->[$i]->[$j]);
+                $j++;
+            }
+        } elsif (ref $frst->[$i] eq 'HASH') {
+            last unless (@{$frst->[$i]->{keys}} == @{$scnd->[$i]->{keys}});
+            my $j = 0;
+            while ($j < @{$frst->[$i]->{keys}}) {
+                last MAIN unless ($frst->[$i]->{keys}->[$j] eq $scnd->[$i]->{keys}->[$j]);
+                $j++;
+            }
+        } else {
+            croak "Unsupported thing in the path (step #$i)";
+        }
+        $i++;
+    }
+
+    return @{$scnd}[$i..$#{$scnd}];
 }
 
 =head1 LIMITATIONS

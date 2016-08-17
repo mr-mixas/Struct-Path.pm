@@ -4,16 +4,21 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.33
+Version 0.40
 
 # SYNOPSIS
 
-    use Struct::Path qw(spath);
+    use Struct::Path qw(slist spath spath_delta);
 
     $s = [
         0,
         1,
-        {'2a' => {'2aa' => '2aav', '2ab' => '2abv'}},
+        {
+            '2a' => {
+                '2aa' => '2aav',
+                '2ab' => '2abv'
+            }
+        },
         undef
     ];
 
@@ -34,6 +39,9 @@ Version 0.33
 
     ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path
     # $s->[2]{2a}{2aa} eq "blah-blah-av"
+
+    @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # new steps relatively for first path
+    # @d == ([1],[3])
 
 # EXPORT
 
@@ -91,6 +99,12 @@ See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) 
 - strict `<true|false>`
 
     Croak if at least one element, specified in path, absent in the struct.
+
+## spath\_delta
+
+Returns delta for two passed paths.
+
+    @delta = spath_delta($path1, $path2)
 
 # LIMITATIONS
 
