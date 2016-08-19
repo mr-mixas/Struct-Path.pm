@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.40
+Version 0.41
 
 =cut
 
-our $VERSION = '0.40';
+our $VERSION = '0.41';
 
 =head1 SYNOPSIS
 
@@ -231,7 +231,7 @@ sub spath($$;@) {
 
 =head2 spath_delta
 
-Returns delta for two passed paths.
+Returns delta for two passed paths. By delta means steps from the second path without beginning common steps for both.
 
     @delta = spath_delta($path1, $path2)
 
@@ -241,12 +241,8 @@ sub spath_delta($$) {
     my ($frst, $scnd) = @_;
 
     croak "Second path must be an arrayref" unless (ref $scnd eq 'ARRAY');
-    if (defined $frst) {
-        croak "First path may be undef or an arrayref" unless (ref $frst eq 'ARRAY');
-        return @{$scnd} if (@{$scnd} < @{$frst});
-    } else {
-        return @{$scnd};
-    }
+    return @{$scnd} unless (defined $frst);
+    croak "First path may be undef or an arrayref" unless (ref $frst eq 'ARRAY');
 
     my $i = 0;
     MAIN: while ($i < @{$frst}) {

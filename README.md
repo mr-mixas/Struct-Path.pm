@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.40
+Version 0.41
 
 # SYNOPSIS
 
@@ -102,7 +102,7 @@ See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) 
 
 ## spath\_delta
 
-Returns delta for two passed paths.
+Returns delta for two passed paths. By delta means steps from the second path without beginning common steps for both.
 
     @delta = spath_delta($path1, $path2)
 

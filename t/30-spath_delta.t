@@ -70,8 +70,8 @@ cmp_deeply(
 );
 cmp_deeply(
     \@delta,
-    [ {keys => ['a']},[0,3],{keys => ['ana', 'anb']} ],
-    "One step removed"
+    [],
+    "One step removed -- no delta"
 );
 
 @delta = spath_delta(
