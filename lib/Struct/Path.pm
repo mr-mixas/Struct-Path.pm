@@ -83,7 +83,7 @@ Don't dive into structure deeper than defined level.
 
 sub slist($;@) {
     my ($struct, %opts) = @_;
-    my @list = ([[], $struct]); # init: [path, lastref]
+    my @out = [[], $struct]; # init: [path, lastref]
 
     my $continue = 1;
     my $depth = 0;
@@ -91,7 +91,7 @@ sub slist($;@) {
         last if (defined $opts{depth} and $depth >= $opts{depth});
         $continue = 0;
         my @new;
-        while (my $path = shift @list) {
+        while (my $path = shift @out) {
             if (ref $path->[1] eq 'ARRAY' and @{$path->[1]}) {
                 for (my $i = 0; $i < @{$path->[1]}; $i++) {
                     push @new, [[@{$path->[0]}, [$i]], $path->[1]->[$i]];
@@ -106,11 +106,11 @@ sub slist($;@) {
                 push @new, $path; # complete path
             }
         }
-        @list = @new;
+        @out = @new;
         $depth++;
     }
 
-    return @list;
+    return @out;
 }
 
 =head2 spath
