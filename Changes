@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.50    2016-08-30
+        Coderefs as path steps in spath() supported
+
 0.41    2016-08-19
         spath_delta(): don't return full second path if it's a subset of first one
 

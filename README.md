@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.41
+Version 0.50
 
 # SYNOPSIS
 
@@ -69,16 +69,23 @@ Returns list of references from structure.
 
 ### Addressing method
 
-It's simple: path is a list of 'steps', each represents nested level in structure. Arrayref as a step
-stands for ARRAY in structure and must contain desired indexes or be empty (means "all items"). Sequence for indexes
-is important and defines result sequence. Almost the same for HASHES - step must be a hashref, must contain key
-`keys` which value must contain list of desired keys in structure or may be empty (all keys). Sequence
+Path is a list of 'steps', each represents nested level in structure.
+
+Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
+empty (means "all items"). Sequence for indexes is important and defines result sequence.
+
+Almost the same for HASHES: step must be a hashref, must contain key `keys` which
+value must contain list of desired keys in structure. Empty list means all keys. Sequence
 in `keys` list defines result sequence.
 
+Since v0.50 coderefs as steps supported as well. Path as first argument and stack of references
+(arrayref) as second will be passed to it's input, some true value or undef (if error occur)
+expected as output.
+
 Why existed \*Path\* libs (["SEE ALSO"](#see-also)) not enough?
-This scheme has no collisions for paths like '/a/0/c' ('0' may be an array index or a key for hash, depends on passed
-structure). In some cases this is important, for example, when you want to define exact path in structure, but
-unable to validate it's schema.
+This scheme has no collisions for paths like '/a/0/c' ('0' may be an ARRAY index or a key
+for HASH, depends on passed structure). In some cases this is important, for example, when
+you want to define exact path in structure, but unable to validate it's schema.
 
 See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition method.
 
