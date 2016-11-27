@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.50
+Version 0.51
 
 =cut
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 =head1 SYNOPSIS
 
@@ -191,7 +191,7 @@ sub spath($$;@) {
                         }
                         push @new, [ [@{$r->[0]}, $i], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
                     }
-                    map { splice(@{${$r->[1]->[-1]}}, $_) } reverse sort @{$step}
+                    map { splice(@{${$r->[1]->[-1]}}, $_, 1) } reverse sort @{$step}
                         if ($opts{delete} and $sc + 1 == @{$path});
                 } else { # [] in the path
                     for (my $i = $#${$r->[1]->[-1]}; $i >= 0; $i--) {

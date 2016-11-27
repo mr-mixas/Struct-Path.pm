@@ -3,13 +3,13 @@ use 5.006;
 use strict;
 use warnings;
 use Storable qw(dclone);
-use Test::More tests => 20;
+use Test::More tests => 24;
 use Test::Deep;
 
 use Struct::Path qw(spath);
 
 use lib "t";
-use _common qw($s_mixed);
+use _common qw($s_array $s_mixed);
 
 my (@r, $t);
 
@@ -73,7 +73,22 @@ cmp_deeply(
     "delete {b}{}:: check returned value"
 );
 
-# delete single array item
+# delete single array item from the beginning
+$t = dclone($s_mixed);
+@r = spath($t, [ {keys => ['a']},[0] ], delete => 1);
+cmp_deeply(
+    $t,
+    {a => [['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+    "delete {a}[0]"
+);
+
+cmp_deeply(
+    \@r,
+    [\{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}}],
+    "delete {a}[0]:: check returned value"
+);
+
+# delete single array item from the end
 $t = dclone($s_mixed);
 @r = spath($t, [ {keys => ['a']},[1] ], delete => 1);
 cmp_deeply(
@@ -86,6 +101,21 @@ cmp_deeply(
     \@r,
     [\['a0','a1']],
     "delete {a}[1]:: check returned value"
+);
+
+# delete single item from the middle of array
+$t = dclone($s_array);
+@r = spath($t, [ [3],[1] ], delete => 1);
+cmp_deeply(
+    $t,
+    [3,1,5,[9,7],11],
+    "delete [3][1]"
+);
+
+cmp_deeply(
+    \@r,
+    [\[13]],
+    "delete {a}[0]:: check returned value"
 );
 
 # delete several array items, asc

@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.51    2016-11-27
+        Array's items removal fixed (don't remove items from specified to the end)
+
 0.50    2016-08-30
         Coderefs as path steps in spath() supported
 
