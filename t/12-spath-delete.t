@@ -3,7 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Storable qw(dclone);
-use Test::More tests => 24;
+use Test::More tests => 26;
 use Test::Deep;
 
 use Struct::Path qw(spath);
@@ -115,7 +115,22 @@ cmp_deeply(
 cmp_deeply(
     \@r,
     [\[13]],
-    "delete {a}[0]:: check returned value"
+    "delete [3][1]:: check returned value"
+);
+
+# delete several items from the middle of array to the out of range
+$t = dclone($s_array);
+@r = spath($t, [ [3],[1,2,3,4] ], delete => 1);
+cmp_deeply(
+    $t,
+    [3,1,5,[9],11],
+    "delete [3][1..4]"
+);
+
+cmp_deeply(
+    \@r,
+    [\[13],\7],
+    "delete [3][1..4]:: check returned value"
 );
 
 # delete several array items, asc
