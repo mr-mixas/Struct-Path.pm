@@ -200,7 +200,7 @@ sub spath($$;@) {
                 } else { # [] in the path
                     for (my $i = $#${$r->[1]->[-1]}; $i >= 0; $i--) {
                         unshift @new, [ [@{$r->[0]}, $i], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
-                        splice(@{${$r->[1]->[-1]}}, $i) if ($opts{delete} and $sc + 1 == @{$path});
+                        splice(@{${$r->[1]->[-1]}}, $i) if ($opts{delete} and $sc == $#{$path});
                     }
                 }
             }
@@ -222,12 +222,12 @@ sub spath($$;@) {
                             next;
                         }
                         push @new, [ [@{$r->[0]}, $k], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
-                        delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc + 1 == @{$path});
+                        delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc == $#{$path});
                     }
                 } else { # {} in the path
                     for my $k (keys %{${$r->[1]->[-1]}}) {
                         push @new, [ [@{$r->[0]}, $k], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
-                        delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc + 1 == @{$path});
+                        delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc == $#{$path});
                     }
                 }
             }
