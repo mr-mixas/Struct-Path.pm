@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.60    2016-12-05
+        regexp match for hash keys specification supported
+
 0.52    2016-11-28
         Array's items removal fixed (don't fail on out of range indexes in nostrict mode)
 

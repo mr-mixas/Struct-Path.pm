@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.52
+Version 0.60
 
 =cut
 
-our $VERSION = '0.52';
+our $VERSION = '0.60';
 
 =head1 SYNOPSIS
 
@@ -49,6 +49,9 @@ our $VERSION = '0.52';
     # @r == (\undef, \0, \1)
 
     @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # same, another example
+    # @r == (\'2aav', \'2abv')
+
+    @r = spath($s, [ [2],{},{regs => [qr/^2a/]} ]); # or using regular expressions
     # @r == (\'2aav', \'2abv')
 
     ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path
@@ -214,20 +217,38 @@ sub spath($$;@) {
                     }
                 }
                 if (keys %{$step}) {
-                    croak "Unsupported HASH definition (step #$sc)"
-                        unless (exists $step->{keys} and ref $step->{keys} eq 'ARRAY');
-                    for my $k (@{$step->{keys}}) {
-                        unless ($opts{expand} or exists ${$r->[1]->[-1]}->{$k}) {
-                            croak "Key '$k' doesn't exists in hash (step #$sc)" if $opts{strict};
-                            next;
+                    my (@keys, %stat);
+                    for my $t ('keys', 'regs') {
+                        next unless (exists $step->{$t});
+                        croak "Unsupported HASH $t definition (step #$sc)"
+                            unless (ref $step->{$t} eq 'ARRAY');
+                        $stat{$t} = 1;
+
+                        if ($t eq 'keys') {
+                            for my $k (@{$step->{keys}}) {
+                                unless ($opts{expand} or exists ${$r->[1]->[-1]}->{$k}) {
+                                    croak "Key '$k' doesn't exists in hash (step #$sc)" if $opts{strict};
+                                    next;
+                                }
+                                push @keys, $k;
+                            }
+                        } else {
+                            for my $g (@{$step->{regs}}) {
+                                push @keys, grep { $_ =~ $g} keys %{${$r->[1]->[-1]}};
+                            }
                         }
+                    }
+                    croak "Unsupported HASH definition (step #$sc)"
+                        unless (keys %stat == keys %{$step});
+                    for my $k (@keys) {
                         push @new, [ [@{$r->[0]}, $k], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
                         delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc == $#{$path});
                     }
                 } else { # {} in the path
                     for my $k (keys %{${$r->[1]->[-1]}}) {
                         push @new, [ [@{$r->[0]}, $k], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
-                        delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc == $#{$path});
+                        delete ${$r->[1]->[-1]}->{$k}
+                            if ($opts{delete} and $sc == $#{$path} and exists ${$r->[1]->[-1]}->{$k});
                     }
                 }
             }

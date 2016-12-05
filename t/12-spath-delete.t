@@ -3,7 +3,7 @@ use 5.006;
 use strict;
 use warnings;
 use Storable qw(dclone);
-use Test::More tests => 26;
+use Test::More tests => 28;
 use Test::Deep;
 
 use Struct::Path qw(spath);
@@ -71,6 +71,21 @@ cmp_deeply(
     [ sort { ${$a} cmp ${$b} } @r ], # hash keys returned by hash seed (ie randomely, so, sort them)
     [\undef],
     "delete {b}{}:: check returned value"
+);
+
+# delete hash keys defined by regex
+$t = dclone($s_mixed);
+@r = spath($t, [ {regs => [qr/^a$/]},[0],{regs => [qr/2c$/,qr/2b$/]},{regs => [qr/^a2.a$/]} ], delete => 1);
+cmp_deeply(
+    $t,
+    {a => [{a2a => {a2aa => 0},a2b => {},a2c => {}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+    "delete hash keys by regex"
+);
+
+cmp_deeply(
+    \@r,
+    [\[],\undef],
+    "check hash keys removal via regex"
 );
 
 # delete single array item from the beginning

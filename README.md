@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.52
+Version 0.60
 
 # SYNOPSIS
 
@@ -35,6 +35,9 @@ Version 0.52
     # @r == (\undef, \0, \1)
 
     @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # same, another example
+    # @r == (\'2aav', \'2abv')
+
+    @r = spath($s, [ [2],{},{regs => [qr/^2a/]} ]); # or using regular expressions
     # @r == (\'2aav', \'2abv')
 
     ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path

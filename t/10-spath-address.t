@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 28;
+use Test::More tests => 31;
 use Test::Deep;
 
 use Struct::Path qw(spath);
@@ -26,13 +26,17 @@ ok($@ =~ /^Path must be arrayref/);
 eval { spath($s_mixed, [ 'a' ]) };
 ok($@ =~ /^Unsupported thing in the path \(step #0\)/);
 
-# garbage in hash definition1
+# garbage in hash definitioni 1
 eval { spath($s_mixed, [ {garbage => ['a']} ]) };
 ok($@ =~ /^Unsupported HASH definition \(step #0\)/); # must be error
 
-# garbage in hash definition1
+# garbage in hash definition 2
 eval { spath($s_mixed, [ {keys => 'a'} ]) };
-ok($@ =~ /^Unsupported HASH definition \(step #0\)/); # must be error
+ok($@ =~ /^Unsupported HASH keys definition \(step #0\)/); # must be error
+
+# garbage in hash definition 3
+eval { spath($s_mixed, [ {regs => 'a'} ]) };
+ok($@ =~ /^Unsupported HASH regs definition \(step #0\)/); # must be error
 
 # wrong step type, strict
 eval { spath($s_mixed, [ [0] ], strict => 1) };
@@ -141,6 +145,23 @@ cmp_deeply(
     \@r,
     [\{a2ca => []}],
     "get {a}[0]{a2c}"
+);
+
+# use regexps as keys specificators
+@r = spath($s_mixed, [ {regs => [qr/a/]},[0],{regs => [qr/a2(a|c)/]} ]);
+@r = sort { (keys %{${$a}})[0] cmp (keys %{${$b}})[0] } @r; # sort by key (random keys access)
+cmp_deeply(
+    \@r,
+    [\{a2aa => 0},\{a2ca => []}],
+    "get {/a/}[0]{/a2(a|c)/}"
+);
+
+@r = spath($s_mixed, [ {regs => [qr/a/]},[0],{keys => ['a2c'], regs => [qr/a2(a|c)/]} ]);
+push @r, sort { (keys %{${$a}})[0] cmp (keys %{${$b}})[0] } splice @r, 1; # sort last two items by key
+cmp_deeply(
+    \@r,
+    [\{a2ca => []},\{a2aa => 0},\{a2ca => []}],
+    "get {/a/}[0]{/a2(a|c)/,a2c} (keys has higher priority than regs)"
 );
 
 # code refs in the path
