@@ -14,11 +14,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.60
+Version 0.61
 
 =cut
 
-our $VERSION = '0.60';
+our $VERSION = '0.61';
 
 =head1 SYNOPSIS
 
@@ -86,31 +86,33 @@ Don't dive into structure deeper than defined level.
 
 sub slist($;@) {
     my ($struct, %opts) = @_;
-    my @out = [[], $struct]; # init: [path, lastref]
 
-    my $continue = 1;
-    my $depth = 0;
-    while ($continue) {
-        last if (defined $opts{depth} and $depth >= $opts{depth});
-        $continue = 0;
-        my @new;
-        while (my $path = shift @out) {
-            if (ref $path->[1] eq 'ARRAY' and @{$path->[1]}) {
-                for (my $i = 0; $i < @{$path->[1]}; $i++) {
-                    push @new, [[@{$path->[0]}, [$i]], $path->[1]->[$i]];
-                }
-                $continue = 1;
-            } elsif (ref $path->[1] eq 'HASH' and keys %{$path->[1]}) {
-                for my $k (sort keys %{$path->[1]}) {
-                    push @new, [[@{$path->[0]}, {keys => [$k]}], $path->[1]->{$k}];
-                }
-                $continue = 1;
-            } else {
-                push @new, $path; # complete path
+    my @in = [[], $struct]; # init: [path, lastref]
+    return @in if (defined $opts{depth} and $opts{depth} < 1);
+
+    my @out;
+
+    while (my $p = shift @in) {
+        my @unres; # not fully resolved
+
+        if (ref $p->[1] eq 'HASH' and keys %{$p->[1]}) {
+            for my $k (sort keys %{$p->[1]}) {
+                push @unres, [[@{$p->[0]}, {keys => [$k]}], $p->[1]->{$k}];
             }
+        } elsif (ref $p->[1] eq 'ARRAY' and @{$p->[1]}) {
+            for (my $i = 0; $i < @{$p->[1]}; $i++) {
+                push @unres, [[@{$p->[0]}, [$i]], $p->[1]->[$i]];
+            }
+        } else {
+            push @out, $p;
         }
-        @out = @new;
-        $depth++;
+
+        if (defined $opts{depth} and @unres and @{$unres[0]->[0]} >= $opts{depth}) {
+            push @out, @unres;
+            next;
+        }
+
+        unshift @in, @unres; # reiterate
     }
 
     return @out;
