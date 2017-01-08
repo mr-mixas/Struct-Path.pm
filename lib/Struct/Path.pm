@@ -6,7 +6,11 @@ use warnings FATAL => 'all';
 use parent qw(Exporter);
 use Carp qw(croak);
 
-our @EXPORT_OK = qw(slist spath spath_delta);
+our @EXPORT_OK = qw(
+    slist
+    spath
+    spath_delta
+);
 
 =head1 NAME
 
@@ -131,7 +135,7 @@ Path is a list of 'steps', each represents nested level in structure.
 Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
 empty (means "all items"). Sequence for indexes is important and defines result sequence.
 
-Almost the same for HASHES: step must be a hashref, must contain key C<keys> which
+Almost the same for HASHes: step must be a hashref, must contain key C<keys> which
 value must contain list of desired keys in structure. Empty list means all keys. Sequence
 in C<keys> list defines result sequence.
 
@@ -142,7 +146,8 @@ expected as output.
 Why existed *Path* libs (L</"SEE ALSO">) not enough?
 This scheme has no collisions for paths like '/a/0/c' ('0' may be an ARRAY index or a key
 for HASH, depends on passed structure). In some cases this is important, for example, when
-you want to define exact path in structure, but unable to validate it's schema.
+you want to define exact path in structure, but unable to validate it's schema or when structure
+doesn't exists yet (see L</expand> for more info).
 
 See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition method.
 
@@ -286,7 +291,9 @@ sub spath_delta($$) {
     croak "First path may be undef or an arrayref" unless (ref $frst eq 'ARRAY');
 
     my $i = 0;
-    MAIN: while ($i < @{$frst}) {
+
+    MAIN:
+    while ($i < @{$frst}) {
         last unless (ref $frst->[$i] eq ref $scnd->[$i]);
         if (ref $frst->[$i] eq 'ARRAY') {
             last unless (@{$frst->[$i]} == @{$scnd->[$i]});
@@ -362,7 +369,7 @@ L<Struct::Diff> L<Struct::Path::PerlStyle>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2016 Michael Samoglyadov.
+Copyright 2016,2017 Michael Samoglyadov.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
