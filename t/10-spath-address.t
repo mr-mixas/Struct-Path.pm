@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 31;
+use Test::More tests => 30;
 use Test::Deep;
 
 use Struct::Path qw(spath);
@@ -165,11 +165,6 @@ cmp_deeply(
 );
 
 # code refs in the path
-my $error = sub { return undef };
-@r = eval { spath($s_array, [ [],[],$error ]) };
-ok($@ =~ /^Failed to apply user defined function \(step #2\)/); # must be error
-cmp_deeply(\@r, [], "Test for return value in user defined code");
-
 my $back = sub { # perform "step back"
     pop @{$_[0]};
     pop @{$_[1]};
@@ -179,14 +174,25 @@ my $back = sub { # perform "step back"
 cmp_deeply(
     \@r,
     [],
-    "get [][][1]< (not exists)"
+    "code refs in the path"
 );
 
 @r = spath($s_mixed, [ {keys => ['a']},[],{},{keys => ['a2ca']},$back,$back ]);
 cmp_deeply(
     \@r,
     [\{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}}],
-    "get {}[]{a2c}<"
+    "code refs in the path (get {a}[]{}{a2ca}(<<2))"
+);
+
+my $defined = sub {
+    return defined (${$_[1]->[-1]}) ? 1 : 0;
+};
+
+@r = spath($s_mixed, [ {keys => ['a']},[],{},{},$defined ]);
+cmp_deeply(
+    [sort @r],
+    [\[],\0],
+    "code refs in the path (grep defined)"
 );
 
 # original structure must remain unchanged

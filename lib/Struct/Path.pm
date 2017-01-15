@@ -260,10 +260,7 @@ sub spath($$;@) {
                 }
             }
         } elsif (ref $step eq 'CODE') {
-            for my $r (@out) {
-                $step->($r->[0], $r->[1]) or croak "Failed to apply user defined function (step #$sc)";
-                push @new, $r;
-            }
+            map { $step->($_->[0], $_->[1]) and push(@new, $_) } @out;
         } else {
             croak "Unsupported thing in the path (step #$sc)";
         }

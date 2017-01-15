@@ -1,5 +1,9 @@
 Revision history for Struct-Path
 
+0.61    2017-01-15
+        discard path if coderef returned false value
+        slist() refactored (~15% faster now)
+
 0.60    2016-12-05
         regexp match for hash keys specification supported
 
