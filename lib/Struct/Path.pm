@@ -18,11 +18,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.61
+Version 0.62
 
 =cut
 
-our $VERSION = '0.61';
+our $VERSION = '0.62';
 
 =head1 SYNOPSIS
 
@@ -199,7 +199,7 @@ sub spath($$;@) {
                             croak "Item with index '$i' doesn't exists in array (step #$sc)" if $opts{strict};
                             next;
                         }
-                        push @new, [ [@{$r->[0]}, $i], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
+                        push @new, [ [@{$r->[0]}, [$i]], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
                     }
                     if ($opts{delete} and $sc == $#{$path}) {
                         for my $i (reverse sort @{$step}) {
@@ -209,7 +209,7 @@ sub spath($$;@) {
                     }
                 } else { # [] in the path
                     for (my $i = $#${$r->[1]->[-1]}; $i >= 0; $i--) {
-                        unshift @new, [ [@{$r->[0]}, $i], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
+                        unshift @new, [ [@{$r->[0]}, [$i]], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
                         splice(@{${$r->[1]->[-1]}}, $i) if ($opts{delete} and $sc == $#{$path});
                     }
                 }
@@ -248,12 +248,12 @@ sub spath($$;@) {
                     croak "Unsupported HASH definition (step #$sc)"
                         unless (keys %stat == keys %{$step});
                     for my $k (@keys) {
-                        push @new, [ [@{$r->[0]}, $k], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
+                        push @new, [ [@{$r->[0]}, {keys => [$k]}], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
                         delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc == $#{$path});
                     }
                 } else { # {} in the path
                     for my $k (keys %{${$r->[1]->[-1]}}) {
-                        push @new, [ [@{$r->[0]}, $k], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
+                        push @new, [ [@{$r->[0]}, {keys => [$k]}], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
                         delete ${$r->[1]->[-1]}->{$k}
                             if ($opts{delete} and $sc == $#{$path} and exists ${$r->[1]->[-1]}->{$k});
                     }
@@ -268,8 +268,11 @@ sub spath($$;@) {
         $sc++;
     }
 
-    @out = map { pop @{$_->[1]} } @out; # prev out support
-    return $opts{deref} ? map { $_ = ${$_} } @out : @out;
+    map {
+        $_->[1] = $opts{deref} ? ${pop @{$_->[1]}} : pop @{$_->[1]};
+        $_ = $_->[1] unless ($opts{paths});
+    } @out;
+    return @out;
 }
 
 =head2 spath_delta

@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 32;
 use Test::Deep;
 
 use Struct::Path qw(spath);
@@ -137,6 +137,22 @@ cmp_deeply(
     \@r,
     ['a0','a1'],
     "get {a}[1][], deref=1"
+);
+
+# result with paths
+@r = spath($s_mixed, [ {keys => ['a']},[1],[] ], paths => 1);
+cmp_deeply(
+    \@r,
+    [[[{keys => ['a']},[1],[0]],\'a0'],[[{keys => ['a']},[1],[1]],\'a1']],
+    "get {a}[1][], paths=1"
+);
+
+# result with paths and dereference
+@r = spath($s_mixed, [ {keys => ['a']},[1],[] ], deref => 1, paths => 1);
+cmp_deeply(
+    \@r,
+    [[[{keys => ['a']},[1],[0]],'a0'],[[{keys => ['a']},[1],[1]],'a1']],
+    "get {a}[1][], deref=1, paths=1"
 );
 
 # mixed structures

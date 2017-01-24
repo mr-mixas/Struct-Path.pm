@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.61
+Version 0.62
 
 # SYNOPSIS
 
@@ -77,7 +77,7 @@ Path is a list of 'steps', each represents nested level in structure.
 Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
 empty (means "all items"). Sequence for indexes is important and defines result sequence.
 
-Almost the same for HASHES: step must be a hashref, must contain key `keys` which
+Almost the same for HASHes: step must be a hashref, must contain key `keys` which
 value must contain list of desired keys in structure. Empty list means all keys. Sequence
 in `keys` list defines result sequence.
 
@@ -88,7 +88,8 @@ expected as output.
 Why existed \*Path\* libs (["SEE ALSO"](#see-also)) not enough?
 This scheme has no collisions for paths like '/a/0/c' ('0' may be an ARRAY index or a key
 for HASH, depends on passed structure). In some cases this is important, for example, when
-you want to define exact path in structure, but unable to validate it's schema.
+you want to define exact path in structure, but unable to validate it's schema or when structure
+doesn't exists yet (see ["expand"](#expand) for more info).
 
 See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition method.
 
