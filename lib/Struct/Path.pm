@@ -18,11 +18,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.62
+Version 0.63
 
 =cut
 
-our $VERSION = '0.62';
+our $VERSION = '0.63';
 
 =head1 SYNOPSIS
 
@@ -64,9 +64,44 @@ our $VERSION = '0.62';
     @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # new steps relatively for first path
     # @d == ([1],[3])
 
+=head1 DESCRIPTION
+
+Struct::Path provides functions to access/match/expand/list nested data structures.
+
+Why existed *Path* modules (L</"SEE ALSO">) is not enough? Used scheme has no collisions
+for paths like '/a/0/c' ('0' may be an ARRAY index or a key for HASH, depends on passed
+structure). In some cases this is important, for example, when you want to define exact
+path in structure, but unable to validate it's schema or when structure doesn't exists
+yet (see L</expand> for example).
+
 =head1 EXPORT
 
 Nothing is exported by default.
+
+=head1 ADDRESSING SCHEME
+
+Path is a list of 'steps', each represents nested level in structure.
+
+Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
+empty (means "all items"). Sequence for indexes is important and defines result sequence.
+
+Hashref represents HASH in the structure and may contain keys C<keys>, C<regs> or be
+empty. C<keys> may contain list of desired keys, C<regs> must contain list of regular
+expressions. Empty hash or empty list for C<keys> means all keys. Sequence in C<keys>
+and C<regs> lists defines result sequence. C<keys> have higher priority than C<regs>.
+
+Sample:
+
+    $spath = [
+        [1,7],
+        {regs => qr/foo/}
+    ];
+
+Since v0.50 coderefs (filters) as steps supported as well. Path as first argument and stack
+of references (arrayref) as second passed to it when executed. Some true (match) value or
+false (doesn't match) value expected as output.
+
+See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition method.
 
 =head1 SUBROUTINES
 
@@ -127,29 +162,6 @@ sub slist($;@) {
 Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
-
-=head3 Addressing method
-
-Path is a list of 'steps', each represents nested level in structure.
-
-Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
-empty (means "all items"). Sequence for indexes is important and defines result sequence.
-
-Almost the same for HASHes: step must be a hashref, must contain key C<keys> which
-value must contain list of desired keys in structure. Empty list means all keys. Sequence
-in C<keys> list defines result sequence.
-
-Since v0.50 coderefs as steps supported as well. Path as first argument and stack of references
-(arrayref) as second will be passed to it's input, some true value or undef (if error occur)
-expected as output.
-
-Why existed *Path* libs (L</"SEE ALSO">) not enough?
-This scheme has no collisions for paths like '/a/0/c' ('0' may be an ARRAY index or a key
-for HASH, depends on passed structure). In some cases this is important, for example, when
-you want to define exact path in structure, but unable to validate it's schema or when structure
-doesn't exists yet (see L</expand> for more info).
-
-See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition method.
 
 =head3 Available options
 
@@ -320,6 +332,8 @@ sub spath_delta($$) {
 
 =head1 LIMITATIONS
 
+Struct::Path will fail on structures with loops in references.
+
 No object oriented interface provided.
 
 =head1 AUTHOR
@@ -363,7 +377,7 @@ L<http://search.cpan.org/dist/Struct-Path/>
 =head1 SEE ALSO
 
 L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy> L<Data::Nested> L<Data::PathSimple>
-L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path>
+L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path> L<Data::Find>
 
 L<Struct::Diff> L<Struct::Path::PerlStyle>
 

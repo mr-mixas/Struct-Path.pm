@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.63    2017-02-22
+        docs improved
+
 0.62    2017-01-23
         'paths' opt for spath() added (highly experimental)
 

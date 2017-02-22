@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.62
+Version 0.63
 
 # SYNOPSIS
 
@@ -46,9 +46,44 @@ Version 0.62
     @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # new steps relatively for first path
     # @d == ([1],[3])
 
+# DESCRIPTION
+
+Struct::Path provides functions to access/match/expand/list nested data structures.
+
+Why existed \*Path\* modules (["SEE ALSO"](#see-also)) is not enough? Used scheme has no collisions
+for paths like '/a/0/c' ('0' may be an ARRAY index or a key for HASH, depends on passed
+structure). In some cases this is important, for example, when you want to define exact
+path in structure, but unable to validate it's schema or when structure doesn't exists
+yet (see ["expand"](#expand) for example).
+
 # EXPORT
 
 Nothing is exported by default.
+
+# ADDRESSING SCHEME
+
+Path is a list of 'steps', each represents nested level in structure.
+
+Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
+empty (means "all items"). Sequence for indexes is important and defines result sequence.
+
+Hashref represents HASH in the structure and may contain keys `keys`, `regs` or be
+empty. `keys` may contain list of desired keys, `regs` must contain list of regular
+expressions. Empty hash or empty list for `keys` means all keys. Sequence in `keys`
+and `regs` lists defines result sequence. `keys` have higher priority than `regs`.
+
+Sample:
+
+    $spath = [
+        [1,7],
+        {regs => qr/foo/}
+    ];
+
+Since v0.50 coderefs (filters) as steps supported as well. Path as first argument and stack
+of references (arrayref) as second passed to it when executed. Some true (match) value or
+false (doesn't match) value expected as output.
+
+See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition method.
 
 # SUBROUTINES
 
@@ -69,29 +104,6 @@ Returns list of paths and their values from structure.
 Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
-
-### Addressing method
-
-Path is a list of 'steps', each represents nested level in structure.
-
-Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
-empty (means "all items"). Sequence for indexes is important and defines result sequence.
-
-Almost the same for HASHes: step must be a hashref, must contain key `keys` which
-value must contain list of desired keys in structure. Empty list means all keys. Sequence
-in `keys` list defines result sequence.
-
-Since v0.50 coderefs as steps supported as well. Path as first argument and stack of references
-(arrayref) as second will be passed to it's input, some true value or undef (if error occur)
-expected as output.
-
-Why existed \*Path\* libs (["SEE ALSO"](#see-also)) not enough?
-This scheme has no collisions for paths like '/a/0/c' ('0' may be an ARRAY index or a key
-for HASH, depends on passed structure). In some cases this is important, for example, when
-you want to define exact path in structure, but unable to validate it's schema or when structure
-doesn't exists yet (see ["expand"](#expand) for more info).
-
-See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition method.
 
 ### Available options
 
@@ -118,6 +130,8 @@ Returns delta for two passed paths. By delta means steps from the second path wi
     @delta = spath_delta($path1, $path2)
 
 # LIMITATIONS
+
+Struct::Path will fail on structures with loops in references.
 
 No object oriented interface provided.
 
@@ -158,7 +172,7 @@ You can also look for information at:
 # SEE ALSO
 
 [Data::Diver](https://metacpan.org/pod/Data::Diver) [Data::DPath](https://metacpan.org/pod/Data::DPath) [Data::DRef](https://metacpan.org/pod/Data::DRef) [Data::Focus](https://metacpan.org/pod/Data::Focus) [Data::Hierarchy](https://metacpan.org/pod/Data::Hierarchy) [Data::Nested](https://metacpan.org/pod/Data::Nested) [Data::PathSimple](https://metacpan.org/pod/Data::PathSimple)
-[Data::Reach](https://metacpan.org/pod/Data::Reach) [Data::Spath](https://metacpan.org/pod/Data::Spath) [JSON::Path](https://metacpan.org/pod/JSON::Path) [MarpaX::xPathLike](https://metacpan.org/pod/MarpaX::xPathLike) [Sereal::Path](https://metacpan.org/pod/Sereal::Path)
+[Data::Reach](https://metacpan.org/pod/Data::Reach) [Data::Spath](https://metacpan.org/pod/Data::Spath) [JSON::Path](https://metacpan.org/pod/JSON::Path) [MarpaX::xPathLike](https://metacpan.org/pod/MarpaX::xPathLike) [Sereal::Path](https://metacpan.org/pod/Sereal::Path) [Data::Find](https://metacpan.org/pod/Data::Find)
 
 [Struct::Diff](https://metacpan.org/pod/Struct::Diff) [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle)
 
