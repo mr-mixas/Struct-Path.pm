@@ -208,7 +208,7 @@ sub spath($$;@) {
                 if (@{$step}) {
                     for my $i (@{$step}) {
                         unless ($opts{expand} or @{${$r->[1]->[-1]}} > $i) {
-                            croak "Item with index '$i' doesn't exists in array (step #$sc)" if $opts{strict};
+                            croak "[$i] doesn't exists (step #$sc)" if $opts{strict};
                             next;
                         }
                         push @new, [ [@{$r->[0]}, [$i]], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
@@ -246,7 +246,7 @@ sub spath($$;@) {
                         if ($t eq 'keys') {
                             for my $k (@{$step->{keys}}) {
                                 unless ($opts{expand} or exists ${$r->[1]->[-1]}->{$k}) {
-                                    croak "Key '$k' doesn't exists in hash (step #$sc)" if $opts{strict};
+                                    croak "{$k} doesn't exists (step #$sc)" if $opts{strict};
                                     next;
                                 }
                                 push @keys, $k;
