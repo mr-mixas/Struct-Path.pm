@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.64    2017-03-15
+        is_implicit_step() subroutine added
+
 0.63    2017-02-22
         docs improved
 

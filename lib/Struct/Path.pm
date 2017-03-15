@@ -7,6 +7,7 @@ use parent qw(Exporter);
 use Carp qw(croak);
 
 our @EXPORT_OK = qw(
+    is_implicit_step
     slist
     spath
     spath_delta
@@ -18,11 +19,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.63
+Version 0.64
 
 =cut
 
-our $VERSION = '0.63';
+our $VERSION = '0.64';
 
 =head1 SYNOPSIS
 
@@ -104,6 +105,30 @@ false (doesn't match) value expected as output.
 See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition method.
 
 =head1 SUBROUTINES
+
+=head2 is_implicit_step
+
+    $implicit = is_implicit_step($step);
+
+Returns true value if step contains filter or specified all keys/items or key regexp match.
+
+=cut
+
+sub is_implicit_step {
+    my $step = shift;
+
+    if (ref $step eq 'ARRAY') {
+        return 1 unless @{$step};
+    } elsif (ref $step eq 'HASH') {
+        return 1 if (exists $step->{regs} and @{$step->{regs}});
+        return 1 unless (exists $step->{keys});
+        return 1 unless (@{$step->{keys}});
+    } else { # coderefs
+        return 1;
+    }
+
+    return undef;
+}
 
 =head2 slist
 

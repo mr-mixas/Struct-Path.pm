@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.63
+Version 0.64
 
 # SYNOPSIS
 
@@ -86,6 +86,12 @@ false (doesn't match) value expected as output.
 See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition method.
 
 # SUBROUTINES
+
+## is\_implicit\_step
+
+    $implicit = is_implicit_step($step);
+
+Returns true value if step contains filter or specified all keys/items or key regexp match.
 
 ## slist
 
