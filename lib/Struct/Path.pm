@@ -19,11 +19,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.64
+Version 0.65
 
 =cut
 
-our $VERSION = '0.64';
+our $VERSION = '0.65';
 
 =head1 SYNOPSIS
 
@@ -214,7 +214,9 @@ Croak if at least one element, specified in path, absent in the struct.
 
 sub spath($$;@) {
     my ($struct, $path, %opts) = @_;
+
     croak "Path must be arrayref" unless (ref $path eq 'ARRAY');
+
     my @out = (ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ?
         [[], [\$struct]] : [[], [$struct]]; # init stacks
 
@@ -309,6 +311,7 @@ sub spath($$;@) {
         $_->[1] = $opts{deref} ? ${pop @{$_->[1]}} : pop @{$_->[1]};
         $_ = $_->[1] unless ($opts{paths});
     } @out;
+
     return @out;
 }
 
@@ -334,17 +337,13 @@ sub spath_delta($$) {
         last unless (ref $frst->[$i] eq ref $scnd->[$i]);
         if (ref $frst->[$i] eq 'ARRAY') {
             last unless (@{$frst->[$i]} == @{$scnd->[$i]});
-            my $j = 0;
-            while ($j < @{$frst->[$i]}) {
+            for my $j (0 .. $#{$frst->[$i]}) {
                 last MAIN unless ($frst->[$i]->[$j] == $scnd->[$i]->[$j]);
-                $j++;
             }
         } elsif (ref $frst->[$i] eq 'HASH') {
             last unless (@{$frst->[$i]->{keys}} == @{$scnd->[$i]->{keys}});
-            my $j = 0;
-            while ($j < @{$frst->[$i]->{keys}}) {
+            for my $j (0 .. $#{$frst->[$i]->{keys}}) {
                 last MAIN unless ($frst->[$i]->{keys}->[$j] eq $scnd->[$i]->{keys}->[$j]);
-                $j++;
             }
         } else {
             croak "Unsupported thing in the path (step #$i)";
