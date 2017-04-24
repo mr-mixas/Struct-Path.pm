@@ -115,14 +115,13 @@ Returns true value if step contains filter or specified all keys/items or key re
 =cut
 
 sub is_implicit_step {
-    my $step = shift;
 
-    if (ref $step eq 'ARRAY') {
-        return 1 unless @{$step};
-    } elsif (ref $step eq 'HASH') {
-        return 1 if (exists $step->{regs} and @{$step->{regs}});
-        return 1 unless (exists $step->{keys});
-        return 1 unless (@{$step->{keys}});
+    if (ref $_[0] eq 'ARRAY') {
+        return 1 unless (@{$_[0]});
+    } elsif (ref $_[0] eq 'HASH') {
+        return 1 if (exists $_[0]->{regs} and @{$_[0]->{regs}});
+        return 1 unless (exists $_[0]->{keys});
+        return 1 unless (@{$_[0]->{keys}});
     } else { # coderefs
         return 1;
     }
@@ -154,29 +153,28 @@ sub slist($;@) {
     my @in = [[], $struct]; # init: [path, lastref]
     return @in if (defined $opts{depth} and $opts{depth} < 1);
 
-    my @out;
+    my (@out, $p, @unres);
 
-    while (my $p = shift @in) {
-        my @unres; # not fully resolved
-
+    while ($p = shift @in) {
         if (ref $p->[1] eq 'HASH' and keys %{$p->[1]}) {
-            for my $k (sort keys %{$p->[1]}) {
-                push @unres, [[@{$p->[0]}, {keys => [$k]}], $p->[1]->{$k}];
+            for (sort keys %{$p->[1]}) {
+                push @unres, [[@{$p->[0]}, {keys => [$_]}], $p->[1]->{$_}];
             }
         } elsif (ref $p->[1] eq 'ARRAY' and @{$p->[1]}) {
-            for (my $i = 0; $i < @{$p->[1]}; $i++) {
-                push @unres, [[@{$p->[0]}, [$i]], $p->[1]->[$i]];
+            for (0 .. $#{$p->[1]}) {
+                push @unres, [[@{$p->[0]}, [$_]], $p->[1]->[$_]];
             }
         } else {
             push @out, $p;
         }
 
-        if (defined $opts{depth} and @unres and @{$unres[0]->[0]} >= $opts{depth}) {
-            push @out, @unres;
-            next;
+        if (@unres) {
+            if ($opts{depth} and @{$unres[0]->[0]} >= $opts{depth}) {
+                push @out, splice @unres;
+            } else {
+                unshift @in, splice @unres; # iterate deeper
+            }
         }
-
-        unshift @in, @unres; # reiterate
     }
 
     return @out;
@@ -217,10 +215,9 @@ sub spath($$;@) {
 
     croak "Path must be arrayref" unless (ref $path eq 'ARRAY');
 
-    my @out = (ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ?
-        [[], [\$struct]] : [[], [$struct]]; # init stacks
-
+    my @out = [[], [(ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ? \$struct : $struct]];
     my $sc = 0; # step counter
+
     for my $step (@{$path}) {
         my @new;
         if (ref $step eq 'ARRAY') {
@@ -280,7 +277,7 @@ sub spath($$;@) {
                             }
                         } else {
                             for my $g (@{$step->{regs}}) {
-                                push @keys, grep { $_ =~ $g} keys %{${$r->[1]->[-1]}};
+                                push @keys, grep { $_ =~ $g } keys %{${$r->[1]->[-1]}};
                             }
                         }
                     }
