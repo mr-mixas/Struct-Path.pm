@@ -4,7 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 use Test::More tests => 8;
-use Test::Deep;
 
 use Struct::Path qw(spath);
 
@@ -17,15 +16,15 @@ my (@r, $tmp);
 
 $tmp = dclone($s_mixed);
 eval { @r = spath($tmp, [ {keys => ['b']},[0] ], expand => 1) };
-ok($@ =~ /^Passed struct doesn't match provided path \(array expected on step #1\)/);
+like($@, qr/^Passed struct doesn't match provided path \(array expected on step #1\)/);
 
 $tmp = dclone($s_mixed);
 eval { @r = spath($tmp, [ {keys => ['a']},[1],{keys => ['a1a']} ], expand => 1) };
-ok($@ =~ /^Passed struct doesn't match provided path \(hash expected on step #2\)/);
+like($@, qr/^Passed struct doesn't match provided path \(hash expected on step #2\)/);
 
 $tmp = undef;
 @r = spath(\$tmp, [ {keys => ['a']},[3] ], expand => 1);
-cmp_deeply(
+is_deeply(
     $tmp,
     {a => [undef,undef,undef,undef]},
     "expand undef to {a}[3]"
@@ -35,7 +34,7 @@ cmp_deeply(
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['a']},[3] ], expand => 1);
-cmp_deeply(
+is_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1'],undef,undef],
@@ -47,7 +46,7 @@ cmp_deeply(
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['a']},[3],[1] ], expand => 1);
-cmp_deeply(
+is_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1'],undef,[undef,undef]],
@@ -61,7 +60,7 @@ cmp_deeply(
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['d']} ], expand => 1);
-cmp_deeply(
+is_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
@@ -73,7 +72,7 @@ cmp_deeply(
 
 $tmp = dclone($s_mixed);
 @r = spath($tmp, [ {keys => ['d']},{keys => ['da', 'db']} ], expand => 1);
-cmp_deeply(
+is_deeply(
     $tmp,
     {
         a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
@@ -88,7 +87,7 @@ cmp_deeply(
 
 $tmp = {};
 @r = spath($tmp, [ {keys => ['a']},[0,3],{keys => ['ana', 'anb']},[1] ], expand => 1);
-cmp_deeply(
+is_deeply(
     $tmp,
     {a => [{ana => [undef,undef],anb => [undef,undef]},undef,undef,{ana => [undef,undef],anb => [undef,undef]}]},
     "expand {a}[0,3]{ana,anb}[1]"

@@ -16,7 +16,6 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Storable'      => 2.01,
-        'Test::Deep'    => 0,
         'Test::More'    => 0,
     },
     META_MERGE => {

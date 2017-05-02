@@ -4,7 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 use Test::More tests => 10;
-use Test::Deep;
 
 use Struct::Path qw(slist);
 
@@ -20,7 +19,7 @@ $frozen = freeze($s_array);
 
 @list = slist($s_array);
 
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [[[0]],\3],
@@ -37,7 +36,7 @@ ok(freeze($s_array) eq $frozen);
 
 $frozen = freeze($s_hash);
 @list = slist($s_hash);
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [[{keys => ['a']}],\'av'],
@@ -52,7 +51,7 @@ ok(freeze($s_hash) eq $frozen);
 $frozen = freeze($s_mixed);
 
 @list = slist($s_mixed);
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [[{keys => ['a']},[0],{keys => ['a2a']},{keys => ['a2aa']}],\0],
@@ -68,7 +67,7 @@ cmp_deeply(
 );
 
 @list = slist($s_mixed, depth => 0); # depth 0 == whole struct
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [
@@ -84,7 +83,7 @@ cmp_deeply(
 );
 
 @list = slist($s_mixed, depth => 1);
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [[{keys => ['a']}],\[{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']]],
@@ -95,7 +94,7 @@ cmp_deeply(
 );
 
 @list = slist($s_mixed, depth => 3);
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [[{keys => ['a']},[0],{keys => ['a2a']}],\{a2aa => 0}],
@@ -111,7 +110,7 @@ cmp_deeply(
 );
 
 @list = slist($s_mixed, depth => 100);
-cmp_deeply(
+is_deeply(
     \@list,
     [
         [[{keys => ['a']},[0],{keys => ['a2a']},{keys => ['a2aa']}],\0],
