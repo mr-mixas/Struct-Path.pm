@@ -43,11 +43,11 @@ our $VERSION = '0.65';
 
     @list = slist($s);                              # get all paths and their values
     # @list == (
-    #    [[[0]],0],
-    #    [[[1]],1],
-    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],'2aav'],
-    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],'2abv'],
-    #    [[[3]],undef]
+    #    [[[0]],\0],
+    #    [[[1]],\1],
+    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],\'2aav'],
+    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],\'2abv'],
+    #    [[[3]],\undef]
     # )
 
     @r = spath($s, [ [3,0,1] ]);                    # get refs to values by paths
@@ -131,7 +131,7 @@ sub is_implicit_step {
 
 =head2 slist
 
-Returns list of paths and their values from structure.
+Returns list of paths and references to their values from structure.
 
     @list = slist($struct, %opts)
 
@@ -150,19 +150,25 @@ Don't dive into structure deeper than defined level.
 sub slist($;@) {
     my ($struct, %opts) = @_;
 
-    my @in = [[], $struct]; # init: [path, lastref]
+    my @in = [[], \$struct]; # init: [path, ref]
     return @in if (defined $opts{depth} and $opts{depth} < 1);
 
     my (@out, $p, @unres);
 
     while ($p = shift @in) {
-        if (ref $p->[1] eq 'HASH' and keys %{$p->[1]}) {
-            for (sort keys %{$p->[1]}) {
-                push @unres, [[@{$p->[0]}, {keys => [$_]}], $p->[1]->{$_}];
+        if (ref ${$p->[1]} eq 'HASH' and keys %{${$p->[1]}}) {
+            for (sort keys %{${$p->[1]}}) {
+                push @unres, [
+                    [@{$p->[0]}, {keys => [$_]}],   # path
+                    \${$p->[1]}->{$_}               # ref
+                ];
             }
-        } elsif (ref $p->[1] eq 'ARRAY' and @{$p->[1]}) {
-            for (0 .. $#{$p->[1]}) {
-                push @unres, [[@{$p->[0]}, [$_]], $p->[1]->[$_]];
+        } elsif (ref ${$p->[1]} eq 'ARRAY' and @{${$p->[1]}}) {
+            for (0 .. $#{${$p->[1]}}) {
+                push @unres, [
+                    [@{$p->[0]}, [$_]],             # path
+                    \${$p->[1]}->[$_]               # ref
+                ];
             }
         } else {
             push @out, $p;
