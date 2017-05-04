@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.64
+Version 0.65
 
 # SYNOPSIS
 
@@ -24,11 +24,11 @@ Version 0.64
 
     @list = slist($s);                              # get all paths and their values
     # @list == (
-    #    [[[0]],0],
-    #    [[[1]],1],
-    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],'2aav'],
-    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],'2abv'],
-    #    [[[3]],undef]
+    #    [[[0]],\0],
+    #    [[[1]],\1],
+    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],\'2aav'],
+    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],\'2abv'],
+    #    [[[3]],\undef]
     # )
 
     @r = spath($s, [ [3,0,1] ]);                    # get refs to values by paths
@@ -95,7 +95,7 @@ Returns true value if step contains filter or specified all keys/items or key re
 
 ## slist
 
-Returns list of paths and their values from structure.
+Returns list of paths and references to their values from structure.
 
     @list = slist($struct, %opts)
 

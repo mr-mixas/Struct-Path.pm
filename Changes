@@ -1,5 +1,9 @@
 Revision history for Struct-Path
 
+0.65    2017-05-04
+        slist() now also returns references to values
+        refactoring
+
 0.64    2017-03-15
         is_implicit_step() subroutine added
 
