@@ -19,11 +19,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.65
+Version 0.70
 
 =cut
 
-our $VERSION = '0.65';
+our $VERSION = '0.70';
 
 =head1 SYNOPSIS
 
@@ -41,13 +41,13 @@ our $VERSION = '0.65';
         undef
     ];
 
-    @list = slist($s);                              # get all paths and their values
+    @list = slist($s);                              # get paths and refs to values
     # @list == (
-    #    [[[0]],\0],
-    #    [[[1]],\1],
-    #    [[[2],{keys => ['2a']},{keys => ['2aa']}],\'2aav'],
-    #    [[[2],{keys => ['2a']},{keys => ['2ab']}],\'2abv'],
-    #    [[[3]],\undef]
+    #     [[0]], \0,
+    #     [[1]], \1,
+    #     [[2],{keys => ['2a']},{keys => ['2aa']}], \'2aav',
+    #     [[2],{keys => ['2a']},{keys => ['2ab']}], \'2abv',
+    #     [[3]], \undef
     # )
 
     @r = spath($s, [ [3,0,1] ]);                    # get refs to values by paths
@@ -148,38 +148,23 @@ Don't dive into structure deeper than defined level.
 =cut
 
 sub slist($;@) {
-    my ($struct, %opts) = @_;
+    my @stack = ([], \shift); # init: (path, ref)
+    my %opts = @_;
 
-    my @in = [[], \$struct]; # init: [path, ref]
-    return @in if (defined $opts{depth} and $opts{depth} < 1);
+    my (@out, $path, $ref);
+    my $depth = defined $opts{depth} ? $opts{depth} : -1;
 
-    my (@out, $p, @unres);
+    while (@stack) {
+        ($path, $ref) = splice @stack, 0, 2;
 
-    while ($p = shift @in) {
-        if (ref ${$p->[1]} eq 'HASH' and keys %{${$p->[1]}}) {
-            for (sort keys %{${$p->[1]}}) {
-                push @unres, [
-                    [@{$p->[0]}, {keys => [$_]}],   # path
-                    \${$p->[1]}->{$_}               # ref
-                ];
-            }
-        } elsif (ref ${$p->[1]} eq 'ARRAY' and @{${$p->[1]}}) {
-            for (0 .. $#{${$p->[1]}}) {
-                push @unres, [
-                    [@{$p->[0]}, [$_]],             # path
-                    \${$p->[1]}->[$_]               # ref
-                ];
-            }
+        if (ref ${$ref} eq 'HASH' and @{$path} != $depth and keys %{${$ref}}) {
+            map { unshift @stack, [@{$path}, {keys => [$_]}], \${$ref}->{$_} }
+                reverse sort keys %{${$ref}};
+        } elsif (ref ${$ref} eq 'ARRAY' and @{$path} != $depth and @{${$ref}}) {
+            map { unshift @stack, [@{$path}, [$_]], \${$ref}->[$_] }
+                reverse 0 .. $#{${$ref}}
         } else {
-            push @out, $p;
-        }
-
-        if (@unres) {
-            if ($opts{depth} and @{$unres[0]->[0]} >= $opts{depth}) {
-                push @out, splice @unres;
-            } else {
-                unshift @in, splice @unres; # iterate deeper
-            }
+            push @out, $path, $ref;
         }
     }
 
