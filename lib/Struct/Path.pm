@@ -202,105 +202,91 @@ Croak if at least one element, specified in path, absent in the struct.
 =cut
 
 sub spath($$;@) {
-    my ($struct, $path, %opts) = @_;
+    my ($struct, $spath, %opts) = @_;
 
-    croak "Path must be arrayref" unless (ref $path eq 'ARRAY');
+    croak "Path must be arrayref" unless (ref $spath eq 'ARRAY');
 
-    my @out = [[], [(ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ? \$struct : $struct]];
+    my @out = ([], [(ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ? \$struct : $struct]);
     my $sc = 0; # step counter
+    my ($items, @next, $path, $refs, @types);
 
-    for my $step (@{$path}) {
-        my @new;
-        if (ref $step eq 'ARRAY') {
-            while (my $r = shift @out) {
-                unless (ref ${$r->[1]->[-1]} eq 'ARRAY') {
-                    if ($opts{strict} or ($opts{expand} and defined ${$r->[1]->[-1]})) {
-                        croak "Passed struct doesn't match provided path (array expected on step #$sc)";
-                    } elsif (not $opts{expand}) {
+    for my $step (@{$spath}) {
+        while (@out) {
+            ($path, $refs) = splice @out, 0, 2;
+
+            if (ref $step eq 'ARRAY') {
+                unless (ref ${$refs->[-1]} eq 'ARRAY') {
+                    croak "Passed struct doesn't match provided path (array expected on step #$sc)"
+                        if ($opts{strict} or ($opts{expand} and defined ${$refs->[-1]}));
+                    next unless ($opts{expand});
+                }
+
+                $items = @{$step} ? $step : [0 .. $#${$refs->[-1]}];
+                for (@{$items}) {
+                    unless ($opts{expand} or @{${$refs->[-1]}} > $_) {
+                        croak "[$_] doesn't exists (step #$sc)" if ($opts{strict});
                         next;
                     }
+                    push @next, [@{$path}, [$_]], [@{$refs}, \${$refs->[-1]}->[$_]];
                 }
-                if (@{$step}) {
-                    for my $i (@{$step}) {
-                        unless ($opts{expand} or @{${$r->[1]->[-1]}} > $i) {
-                            croak "[$i] doesn't exists (step #$sc)" if $opts{strict};
-                            next;
-                        }
-                        push @new, [ [@{$r->[0]}, [$i]], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
-                    }
-                    if ($opts{delete} and $sc == $#{$path}) {
-                        for my $i (reverse sort @{$step}) {
-                            next if ($i > $#{${$r->[1]->[-1]}}); # skip out of range indexes (strict not enabled)
-                            splice(@{${$r->[1]->[-1]}}, $i, 1);
-                        }
-                    }
-                } else { # [] in the path
-                    for (my $i = $#${$r->[1]->[-1]}; $i >= 0; $i--) {
-                        unshift @new, [ [@{$r->[0]}, [$i]], [@{$r->[1]}, \${$r->[1]->[-1]}->[$i]] ];
-                        splice(@{${$r->[1]->[-1]}}, $i) if ($opts{delete} and $sc == $#{$path});
-                    }
-                }
-            }
-        } elsif (ref $step eq 'HASH') {
-            while (my $r = shift @out) {
-                unless (ref ${$r->[1]->[-1]} eq 'HASH') {
-                    if ($opts{strict} or ($opts{expand} and defined ${$r->[1]->[-1]})) {
-                        croak "Passed struct doesn't match provided path (hash expected on step #$sc)";
-                    } elsif (not $opts{expand}) {
-                        next;
-                    }
-                }
-                if (keys %{$step}) {
-                    my (@keys, %stat);
-                    for my $t ('keys', 'regs') {
-                        next unless (exists $step->{$t});
-                        croak "Unsupported HASH $t definition (step #$sc)"
-                            unless (ref $step->{$t} eq 'ARRAY');
-                        $stat{$t} = 1;
 
-                        if ($t eq 'keys') {
-                            for my $k (@{$step->{keys}}) {
-                                unless ($opts{expand} or exists ${$r->[1]->[-1]}->{$k}) {
-                                    croak "{$k} doesn't exists (step #$sc)" if $opts{strict};
-                                    next;
-                                }
-                                push @keys, $k;
+                if ($opts{delete} and $sc == $#{$spath}) {
+                    map { splice(@{${$refs->[-1]}}, $_, 1) if ($_ <= $#{${$refs->[-1]}}) }
+                        reverse sort @{$items};
+                }
+            } elsif (ref $step eq 'HASH') {
+                unless (ref ${$refs->[-1]} eq 'HASH') {
+                    croak "Passed struct doesn't match provided path (hash expected on step #$sc)"
+                        if ($opts{strict} or ($opts{expand} and defined ${$refs->[-1]}));
+                    next unless ($opts{expand});
+                }
+
+                @types = grep { exists $step->{$_} } qw(keys regs);
+                croak "Unsupported HASH definition (step #$sc)" if (@types != keys %{$step});
+                undef $items;
+
+                for my $t (@types) {
+                    croak "Unsupported HASH $t definition (step #$sc)"
+                        unless (ref $step->{$t} eq 'ARRAY');
+
+                    if ($t eq 'keys') {
+                        for (@{$step->{keys}}) {
+                            unless ($opts{expand} or exists ${$refs->[-1]}->{$_}) {
+                                croak "{$_} doesn't exists (step #$sc)" if $opts{strict};
+                                next;
                             }
-                        } else {
-                            for my $g (@{$step->{regs}}) {
-                                push @keys, grep { $_ =~ $g } keys %{${$r->[1]->[-1]}};
-                            }
+                            push @{$items}, $_;
+                        }
+                    } else {
+                        for my $g (@{$step->{regs}}) {
+                            push @{$items}, grep { $_ =~ $g } keys %{${$refs->[-1]}};
                         }
                     }
-                    croak "Unsupported HASH definition (step #$sc)"
-                        unless (keys %stat == keys %{$step});
-                    for my $k (@keys) {
-                        push @new, [ [@{$r->[0]}, {keys => [$k]}], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
-                        delete ${$r->[1]->[-1]}->{$k} if ($opts{delete} and $sc == $#{$path});
-                    }
-                } else { # {} in the path
-                    for my $k (keys %{${$r->[1]->[-1]}}) {
-                        push @new, [ [@{$r->[0]}, {keys => [$k]}], [@{$r->[1]}, \${$r->[1]->[-1]}->{$k}] ];
-                        delete ${$r->[1]->[-1]}->{$k}
-                            if ($opts{delete} and $sc == $#{$path} and exists ${$r->[1]->[-1]}->{$k});
-                    }
                 }
+
+                for (@types ? @{$items} : keys %{${$refs->[-1]}}) {
+                    push @next, [@{$path}, {keys => [$_]}], [@{$refs}, \${$refs->[-1]}->{$_}];
+                    delete ${$refs->[-1]}->{$_} if ($opts{delete} and $sc == $#{$spath});
+                }
+            } elsif (ref $step eq 'CODE') {
+                $step->($path, $refs) and push @next, $path, $refs;
+            } else {
+                croak "Unsupported thing in the path (step #$sc)";
             }
-        } elsif (ref $step eq 'CODE') {
-            map { $step->($_->[0], $_->[1]) and push(@new, $_) } @out;
-        } else {
-            croak "Unsupported thing in the path (step #$sc)";
         }
-        @out = @new;
+
+        @out = splice @next;
         $sc++;
     }
 
-    map {
-        $_->[1] = $opts{deref} ? ${pop @{$_->[1]}} : pop @{$_->[1]};
-        $_ = $_->[1] unless ($opts{paths});
-    } @out;
+    my @result;
+    while (@out) {
+        ($path, $refs) = splice @out, 0, 2;
+        $refs = $opts{deref} ? ${pop @{$refs}} : pop @{$refs};
+        push @result, ($opts{paths} ? [$path, $refs] : $refs);
+    }
 
-    return @out;
+    return @result;
 }
 
 =head2 spath_delta
