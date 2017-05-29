@@ -215,10 +215,11 @@ sub spath($$;@) {
             ($path, $refs) = splice @out, 0, 2;
 
             if (ref $step eq 'ARRAY') {
-                unless (ref ${$refs->[-1]} eq 'ARRAY') {
-                    croak "Passed struct doesn't match provided path (array expected on step #$sc)"
-                        if ($opts{strict} or ($opts{expand} and defined ${$refs->[-1]}));
+                if (ref ${$refs->[-1]} ne 'ARRAY') {
+                    croak "ARRAY expected on step #$sc, got " . ref ${$refs->[-1]}
+                        if ($opts{strict});
                     next unless ($opts{expand});
+                    ${$refs->[-1]} = [];
                 }
 
                 $items = @{$step} ? $step : [0 .. $#${$refs->[-1]}];
@@ -235,10 +236,11 @@ sub spath($$;@) {
                         reverse sort @{$items};
                 }
             } elsif (ref $step eq 'HASH') {
-                unless (ref ${$refs->[-1]} eq 'HASH') {
-                    croak "Passed struct doesn't match provided path (hash expected on step #$sc)"
-                        if ($opts{strict} or ($opts{expand} and defined ${$refs->[-1]}));
+                if (ref ${$refs->[-1]} ne 'HASH') {
+                    croak "HASH expected on step #$sc, got " . ref ${$refs->[-1]}
+                        if ($opts{strict});
                     next unless ($opts{expand});
+                    ${$refs->[-1]} = {};
                 }
 
                 @types = grep { exists $step->{$_} } qw(keys regs);

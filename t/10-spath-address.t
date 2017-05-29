@@ -39,11 +39,11 @@ like($@, qr/^Unsupported HASH regs definition \(step #0\)/); # must be error
 
 # wrong step type, strict
 eval { spath($s_mixed, [ [0] ], strict => 1) };
-like($@, qr/^Passed struct doesn't match provided path \(array expected on step #0\)/);
+like($@, qr/^ARRAY expected on step #0, got HASH/);
 
 # wrong step type, strict 2
 eval { spath($s_array, [ {keys => 'a'} ], strict => 1) };
-like($@, qr/^Passed struct doesn't match provided path \(hash expected on step #0\)/);
+like($@, qr/^HASH expected on step #0, got ARRAY/);
 
 # out of range
 eval { spath($s_mixed, [ {keys => ['a']},[1000] ]) };
