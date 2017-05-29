@@ -17,6 +17,10 @@ my (@r, $frozen_s);
 # will check later it's not chaged
 $frozen_s = freeze($s_mixed);
 
+# nonref as a structure
+eval { spath(undef, []) };
+like($@, qr/^Reference expected for structure/);
+
 # path must be a list
 eval { spath($s_mixed, undef) };
 like($@, qr/^Path must be arrayref/);
@@ -73,20 +77,12 @@ ok(!@r);
 @r = spath($s_mixed, []);
 ok($frozen_s = freeze(${$r[0]}));
 
-# nonref as a structure
-@r = spath(undef, []);
-is_deeply(
-    \@r,
-    [\undef],
-    "nonref as a structure"
-);
-
 # blessed thing as a structure
 my $t = bless {}, "Thing";
 @r = spath($t, []);
 is_deeply(
     \@r,
-    [bless( {}, 'Thing' )],
+    [\bless( {}, 'Thing' )],
     "blessed thing as a structure"
 );
 

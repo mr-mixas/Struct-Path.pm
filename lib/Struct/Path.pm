@@ -204,9 +204,10 @@ Croak if at least one element, specified in path, absent in the struct.
 sub spath($$;@) {
     my ($struct, $spath, %opts) = @_;
 
+    croak "Reference expected for structure" unless (ref $struct);
     croak "Path must be arrayref" unless (ref $spath eq 'ARRAY');
 
-    my @out = ([], [(ref $struct eq 'ARRAY' or ref $struct eq 'HASH' or not ref $struct) ? \$struct : $struct]);
+    my @out = ([], [ref $struct eq 'SCALAR' ? $struct : \$struct]);
     my $sc = 0; # step counter
     my ($items, @next, $path, $refs, @types);
 
