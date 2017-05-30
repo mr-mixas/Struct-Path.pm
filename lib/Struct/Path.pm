@@ -41,7 +41,7 @@ our $VERSION = '0.70';
         undef
     ];
 
-    @list = slist($s);                              # get paths and refs to values
+    @list = slist($s);                              # list paths and their values
     # @list == (
     #     [[0]], \0,
     #     [[1]], \1,
@@ -50,7 +50,7 @@ our $VERSION = '0.70';
     #     [[3]], \undef
     # )
 
-    @r = spath($s, [ [3,0,1] ]);                    # get refs to values by paths
+    @r = spath($s, [ [3,0,1] ]);                    # get refs to values
     # @r == (\undef, \0, \1)
 
     @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # same, another example
@@ -59,21 +59,21 @@ our $VERSION = '0.70';
     @r = spath($s, [ [2],{},{regs => [qr/^2a/]} ]); # or using regular expressions
     # @r == (\'2aav', \'2abv')
 
-    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace substructire by path
+    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace
     # $s->[2]{2a}{2aa} eq "blah-blah-av"
 
-    @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # new steps relatively for first path
+    @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # get steps delta
     # @d == ([1],[3])
 
 =head1 DESCRIPTION
 
 Struct::Path provides functions to access/match/expand/list nested data structures.
 
-Why existed *Path* modules (L</"SEE ALSO">) is not enough? Used scheme has no collisions
-for paths like '/a/0/c' ('0' may be an ARRAY index or a key for HASH, depends on passed
-structure). In some cases this is important, for example, when you want to define exact
-path in structure, but unable to validate it's schema or when structure doesn't exists
-yet (see L</expand> for example).
+Why existed *Path* modules (L</"SEE ALSO">) is not enough? This module has no
+conflicts for paths like '/a/0/c', where C<0> may be an ARRAY index or a key for
+HASH (depends on passed structure). In some cases this is important, for example,
+when one need to define exact path in structure, but unable to validate it's
+schema or when structure itself doesn't yet exists (see L</expand> for example).
 
 =head1 EXPORT
 
@@ -83,8 +83,9 @@ Nothing is exported by default.
 
 Path is a list of 'steps', each represents nested level in structure.
 
-Arrayref as a step stands for ARRAY in structure and must contain desired indexes or be
-empty (means "all items"). Sequence for indexes is important and defines result sequence.
+Arrayref as a step stands for ARRAY in structure and must contain desired indexes
+or be empty (means "all items"). Sequence for indexes is important and defines
+result sequence.
 
 Hashref represents HASH in the structure and may contain keys C<keys>, C<regs> or be
 empty. C<keys> may contain list of desired keys, C<regs> must contain list of regular
@@ -94,15 +95,16 @@ and C<regs> lists defines result sequence. C<keys> have higher priority than C<r
 Sample:
 
     $spath = [
-        [1,7],
-        {regs => qr/foo/}
+        [1,7],              # first spep
+        {regs => qr/foo/}   # second step
     ];
 
-Since v0.50 coderefs (filters) as steps supported as well. Path as first argument and stack
-of references (arrayref) as second passed to it when executed. Some true (match) value or
-false (doesn't match) value expected as output.
+Since v0.50 hooks (coderefs) as steps supported. Path as first argument and stack
+of references (arrayref) as second passed to it when executed. Some true (match)
+value or false (doesn't match) value expected as output.
 
-See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition method.
+See L<Struct::Path::PerlStyle> if you're looking for human friendly path definition
+method.
 
 =head1 SUBROUTINES
 
@@ -110,7 +112,7 @@ See L<Struct::Path::PerlStyle> if you're looking for human friendly path definit
 
     $implicit = is_implicit_step($step);
 
-Returns true value if step contains filter or specified all keys/items or key regexp match.
+Returns true value if step contains hooks or specified all items or regexp match.
 
 =cut
 
@@ -122,7 +124,7 @@ sub is_implicit_step {
         return 1 if (exists $_[0]->{regs} and @{$_[0]->{regs}});
         return 1 unless (exists $_[0]->{keys});
         return 1 unless (@{$_[0]->{keys}});
-    } else { # coderefs
+    } else { # hooks
         return 1;
     }
 
@@ -191,7 +193,8 @@ Dereference result items.
 
 =item expand C<< <true|false> >>
 
-Expand structure if specified in path items does't exists. All newly created items initialized by C<undef>.
+Expand structure if specified in path items does't exists. All newly created items
+initialized by C<undef>.
 
 =item strict C<< <true|false> >>
 
@@ -294,7 +297,8 @@ sub spath($$;@) {
 
 =head2 spath_delta
 
-Returns delta for two passed paths. By delta means steps from the second path without beginning common steps for both.
+Returns delta for two passed paths. By delta means steps from the second path
+without beginning common steps for both.
 
     @delta = spath_delta($path1, $path2)
 
@@ -310,8 +314,7 @@ sub spath_delta($$) {
     my $i = 0;
 
     MAIN:
-    while ($i < @{$frst}) {
-        last unless (ref $frst->[$i] eq ref $scnd->[$i]);
+    while ($i < @{$frst} and ref $frst->[$i] eq ref $scnd->[$i]) {
         if (ref $frst->[$i] eq 'ARRAY') {
             last unless (@{$frst->[$i]} == @{$scnd->[$i]});
             for my $j (0 .. $#{$frst->[$i]}) {
@@ -328,7 +331,7 @@ sub spath_delta($$) {
         $i++;
     }
 
-    return @{$scnd}[$i..$#{$scnd}];
+    return @{$scnd}[$i .. $#{$scnd}];
 }
 
 =head1 LIMITATIONS
@@ -343,9 +346,10 @@ Michael Samoglyadov, C<< <mixas at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-struct-path at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path>. I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+Please report any bugs or feature requests to C<bug-struct-path at rt.cpan.org>,
+or through the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path>.
+I will be notified, and then you'll automatically be notified of progress on your
+bug as I make changes.
 
 =head1 SUPPORT
 
@@ -377,8 +381,9 @@ L<http://search.cpan.org/dist/Struct-Path/>
 
 =head1 SEE ALSO
 
-L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy> L<Data::Nested> L<Data::PathSimple>
-L<Data::Reach> L<Data::Spath> L<JSON::Path> L<MarpaX::xPathLike> L<Sereal::Path> L<Data::Find>
+L<Data::Diver> L<Data::DPath> L<Data::DRef> L<Data::Focus> L<Data::Hierarchy>
+L<Data::Nested> L<Data::PathSimple> L<Data::Reach> L<Data::Spath> L<JSON::Path>
+L<MarpaX::xPathLike> L<Sereal::Path> L<Data::Find>
 
 L<Struct::Diff> L<Struct::Path::PerlStyle>
 
