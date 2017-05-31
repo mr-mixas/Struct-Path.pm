@@ -128,6 +128,10 @@ Returns list of references from structure.
     Expand structure if specified in path items does't exists. All newly created items
     initialized by `undef`.
 
+- paths `<true|false>`
+
+    Return path for each result. False by default.
+
 - strict `<true|false>`
 
     Croak if at least one element, specified in path, absent in the struct.

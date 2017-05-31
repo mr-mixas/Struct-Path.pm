@@ -196,6 +196,10 @@ Dereference result items.
 Expand structure if specified in path items does't exists. All newly created items
 initialized by C<undef>.
 
+=item paths C<< <true|false> >>
+
+Return path for each result. False by default.
+
 =item strict C<< <true|false> >>
 
 Croak if at least one element, specified in path, absent in the struct.
@@ -210,13 +214,13 @@ sub spath($$;@) {
     croak "Reference expected for structure" unless (ref $struct);
     croak "Path must be arrayref" unless (ref $spath eq 'ARRAY');
 
-    my @out = ([], [ref $struct eq 'SCALAR' ? $struct : \$struct]);
+    my @level = ([], [ref $struct eq 'SCALAR' ? $struct : \$struct]);
     my $sc = 0; # step counter
     my ($items, @next, $path, $refs, @types);
 
     for my $step (@{$spath}) {
-        while (@out) {
-            ($path, $refs) = splice @out, 0, 2;
+        while (@level) {
+            ($path, $refs) = splice @level, 0, 2;
 
             if (ref $step eq 'ARRAY') {
                 if (ref ${$refs->[-1]} ne 'ARRAY') {
@@ -281,18 +285,18 @@ sub spath($$;@) {
             }
         }
 
-        @out = splice @next;
+        @level = splice @next;
         $sc++;
     }
 
-    my @result;
-    while (@out) {
-        ($path, $refs) = splice @out, 0, 2;
+    my @out;
+    while (@level) {
+        ($path, $refs) = splice @level, 0, 2;
         $refs = $opts{deref} ? ${pop @{$refs}} : pop @{$refs};
-        push @result, ($opts{paths} ? [$path, $refs] : $refs);
+        push @out, ($opts{paths} ? ($path, $refs) : $refs);
     }
 
-    return @result;
+    return @out;
 }
 
 =head2 spath_delta

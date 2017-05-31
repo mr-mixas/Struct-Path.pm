@@ -75,7 +75,7 @@ ok(!@r);
 
 # must return full struct
 @r = spath($s_mixed, []);
-ok($frozen_s = freeze(${$r[0]}));
+ok($frozen_s eq freeze(${$r[0]}));
 
 # blessed thing as a structure
 my $t = bless {}, "Thing";
@@ -138,7 +138,10 @@ is_deeply(
 @r = spath($s_mixed, [ {keys => ['a']},[1],[] ], paths => 1);
 is_deeply(
     \@r,
-    [[[{keys => ['a']},[1],[0]],\'a0'],[[{keys => ['a']},[1],[1]],\'a1']],
+    [
+        [{keys => ['a']},[1],[0]], \'a0',
+        [{keys => ['a']},[1],[1]], \'a1'
+    ],
     "get {a}[1][], paths=1"
 );
 
@@ -146,7 +149,10 @@ is_deeply(
 @r = spath($s_mixed, [ {keys => ['a']},[1],[] ], deref => 1, paths => 1);
 is_deeply(
     \@r,
-    [[[{keys => ['a']},[1],[0]],'a0'],[[{keys => ['a']},[1],[1]],'a1']],
+    [
+        [{keys => ['a']},[1],[0]], 'a0',
+        [{keys => ['a']},[1],[1]], 'a1'
+    ],
     "get {a}[1][], deref=1, paths=1"
 );
 
