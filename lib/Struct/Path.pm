@@ -200,6 +200,10 @@ initialized by C<undef>.
 
 Return path for each result. False by default.
 
+=item stack C<< <true|false> >>
+
+Return stack of references to substructures. False by default.
+
 =item strict C<< <true|false> >>
 
 Croak if at least one element, specified in path, absent in the struct.
@@ -292,7 +296,11 @@ sub spath($$;@) {
     my @out;
     while (@level) {
         ($path, $refs) = splice @level, 0, 2;
-        $refs = $opts{deref} ? ${pop @{$refs}} : pop @{$refs};
+        if ($opts{stack}) {
+            map { $_ = ${$_} } @{$refs} if ($opts{deref});
+        } else {
+            $refs = $opts{deref} ? ${pop @{$refs}} : pop @{$refs};
+        }
         push @out, ($opts{paths} ? ($path, $refs) : $refs);
     }
 

@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 32;
+use Test::More tests => 34;
 
 use Struct::Path qw(spath);
 
@@ -154,6 +154,32 @@ is_deeply(
         [{keys => ['a']},[1],[1]], 'a1'
     ],
     "get {a}[1][], deref=1, paths=1"
+);
+
+# 'stack' opt
+@r = spath($s_mixed, [ {keys => ['a']},[1],[0] ], stack => 1);
+is_deeply(
+    \@r,
+    [[
+        \{a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+        \[{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
+        \['a0','a1'],
+        \'a0'
+    ]],
+    "get {a}[1][0], stack=1"
+);
+
+# 'stack' && 'deref' opts
+@r = spath($s_mixed, [ {keys => ['a']},[1],[0] ], deref => 1, stack => 1);
+is_deeply(
+    \@r,
+    [[
+        {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
+        [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],
+        ['a0','a1'],
+        'a0'
+    ]],
+    "get {a}[1][0], deref=1, stack=1"
 );
 
 # mixed structures

@@ -132,6 +132,10 @@ Returns list of references from structure.
 
     Return path for each result. False by default.
 
+- stack `<true|false>`
+
+    Return stack of references to substructures. False by default.
+
 - strict `<true|false>`
 
     Croak if at least one element, specified in path, absent in the struct.
