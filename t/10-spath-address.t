@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 34;
+use Test::More tests => 35;
 
 use Struct::Path qw(spath);
 
@@ -84,6 +84,14 @@ is_deeply(
     \@r,
     [\bless( {}, 'Thing' )],
     "blessed thing as a structure"
+);
+
+# REF as a structure
+@r = spath(\$s_mixed, [ {keys => ['b']} ]);
+is_deeply(
+    \@r,
+    [\{ba => 'vba',bb => 'vbb'}],
+    "get {b}"
 );
 
 # get

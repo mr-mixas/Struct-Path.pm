@@ -218,7 +218,7 @@ sub spath($$;@) {
     croak "Reference expected for structure" unless (ref $struct);
     croak "Path must be arrayref" unless (ref $spath eq 'ARRAY');
 
-    my @level = ([], [ref $struct eq 'SCALAR' ? $struct : \$struct]);
+    my @level = ([], [(ref $struct eq 'SCALAR' or ref $struct eq 'REF') ? $struct : \$struct]);
     my $sc = 0; # step counter
     my ($items, @next, $path, $refs, @types);
 
