@@ -54,7 +54,8 @@ Why existed \*Path\* modules (["SEE ALSO"](#see-also)) is not enough? This modul
 conflicts for paths like '/a/0/c', where `0` may be an ARRAY index or a key for
 HASH (depends on passed structure). In some cases this is important, for example,
 when one need to define exact path in structure, but unable to validate it's
-schema or when structure itself doesn't yet exists (see ["expand"](#expand) for example).
+schema or when structure itself doesn't yet exists (see ["spath/Options/expand"](#spath-options-expand)
+for example).
 
 # EXPORT
 
@@ -101,7 +102,7 @@ Returns list of paths and references to their values from structure.
 
     @list = slist($struct, %opts)
 
-### Available options
+### Options
 
 - depth `<N>`
 
@@ -113,7 +114,7 @@ Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
 
-### Available options
+### Options
 
 - delete `<true|false>`
 
@@ -130,15 +131,17 @@ Returns list of references from structure.
 
 - paths `<true|false>`
 
-    Return path for each result. False by default.
+    Return path for each result.
 
 - stack `<true|false>`
 
-    Return stack of references to substructures. False by default.
+    Return stack of references to substructures.
 
 - strict `<true|false>`
 
-    Croak if at least one element, specified in path, absent in the struct.
+    Croak if at least one element, specified by path, absent in the structure.
+
+All options are disabled (`undef`) by default.
 
 ## spath\_delta
 
@@ -160,9 +163,10 @@ Michael Samoglyadov, `<mixas at cpan.org>`
 # BUGS
 
 Please report any bugs or feature requests to `bug-struct-path at rt.cpan.org`,
-or through the web interface at [http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path).
-I will be notified, and then you'll automatically be notified of progress on your
-bug as I make changes.
+or through the web interface at
+[http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path). I will be notified,
+and then you'll automatically be notified of progress on your bug as I make
+changes.
 
 # SUPPORT
 

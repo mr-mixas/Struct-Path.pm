@@ -73,7 +73,8 @@ Why existed *Path* modules (L</"SEE ALSO">) is not enough? This module has no
 conflicts for paths like '/a/0/c', where C<0> may be an ARRAY index or a key for
 HASH (depends on passed structure). In some cases this is important, for example,
 when one need to define exact path in structure, but unable to validate it's
-schema or when structure itself doesn't yet exists (see L</expand> for example).
+schema or when structure itself doesn't yet exists (see L</spath/Options/expand>
+for example).
 
 =head1 EXPORT
 
@@ -137,7 +138,7 @@ Returns list of paths and references to their values from structure.
 
     @list = slist($struct, %opts)
 
-=head3 Available options
+=head3 Options
 
 =over 4
 
@@ -179,7 +180,7 @@ Returns list of references from structure.
 
     @list = spath($struct, $path, %opts)
 
-=head3 Available options
+=head3 Options
 
 =over 4
 
@@ -198,17 +199,19 @@ initialized by C<undef>.
 
 =item paths C<< <true|false> >>
 
-Return path for each result. False by default.
+Return path for each result.
 
 =item stack C<< <true|false> >>
 
-Return stack of references to substructures. False by default.
+Return stack of references to substructures.
 
 =item strict C<< <true|false> >>
 
-Croak if at least one element, specified in path, absent in the struct.
+Croak if at least one element, specified by path, absent in the structure.
 
 =back
+
+All options are disabled (C<undef>) by default.
 
 =cut
 
@@ -359,9 +362,10 @@ Michael Samoglyadov, C<< <mixas at cpan.org> >>
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-struct-path at rt.cpan.org>,
-or through the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path>.
-I will be notified, and then you'll automatically be notified of progress on your
-bug as I make changes.
+or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path>. I will be notified,
+and then you'll automatically be notified of progress on your bug as I make
+changes.
 
 =head1 SUPPORT
 
