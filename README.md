@@ -4,7 +4,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.70
+Version 0.71
 
 # SYNOPSIS
 
@@ -124,10 +124,11 @@ Returns list of references from structure.
 
     Dereference result items.
 
-- expand `<true|false>`
+- expand `<"append"|true|false>`
 
-    Expand structure if specified in path items does't exists. All newly created items
-    initialized by `undef`.
+    Expand structure if specified in path items doesn't exists. All newly created
+    items initialized by `undef`. Arrays will be growed smoothly if `append` as
+    value used (experimental).
 
 - paths `<true|false>`
 
