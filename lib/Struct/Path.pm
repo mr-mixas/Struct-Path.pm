@@ -184,6 +184,10 @@ Returns list of references from structure.
 
 =over 4
 
+=item assign C<< <value> >>
+
+Assign provided value to substructures pointed by path.
+
 =item delete C<< <true|false> >>
 
 Delete specified by path items from structure.
@@ -302,6 +306,7 @@ sub spath($$;@) {
     my @out;
     while (@level) {
         ($path, $refs) = splice @level, 0, 2;
+        ${$refs->[-1]} = $opts{assign} if (exists $opts{assign});
         if ($opts{stack}) {
             map { $_ = ${$_} } @{$refs} if ($opts{deref});
         } else {

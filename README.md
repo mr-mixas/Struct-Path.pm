@@ -116,6 +116,10 @@ Returns list of references from structure.
 
 ### Options
 
+- assign `<value>`
+
+    Assign provided value to substructures pointed by path.
+
 - delete `<true|false>`
 
     Delete specified by path items from structure.
