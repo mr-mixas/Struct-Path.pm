@@ -19,11 +19,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.71
+Version 0.72
 
 =cut
 
-our $VERSION = '0.71';
+our $VERSION = '0.72';
 
 =head1 SYNOPSIS
 
@@ -225,6 +225,8 @@ sub spath($$;@) {
 
     croak "Reference expected for structure" unless (ref $struct);
     croak "Path must be arrayref" unless (ref $spath eq 'ARRAY');
+    croak "Unable to remove passed thing entirely (empty path passed)"
+        if ($opts{delete} and not @{$spath});
 
     my @level = ([], [(ref $struct eq 'SCALAR' or ref $struct eq 'REF') ? $struct : \$struct]);
     my $sc = 0; # step counter
