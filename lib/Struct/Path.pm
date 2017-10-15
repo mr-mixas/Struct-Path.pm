@@ -246,7 +246,10 @@ sub spath($$;@) {
 
                 $items = @{$step} ? $step : [0 .. $#${$refs->[-1]}];
                 for (@{$items}) {
-                    unless ($opts{expand} or @{${$refs->[-1]}} > $_) {
+                    unless (
+                        $opts{expand} or
+                        @{${$refs->[-1]}} > ($_ >= 0 ? $_ : abs($_ + 1))
+                    ) {
                         croak "[$_] doesn't exists (step #$sc)" if ($opts{strict});
                         next;
                     }
