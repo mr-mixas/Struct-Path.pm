@@ -10,7 +10,7 @@ use Struct::Path qw(spath_delta);
 my @delta;
 
 eval { spath_delta(['garbage'],['garbage'])};
-like($@, qr/Unsupported thing in the path \(step #0\)/);
+like($@, qr/Unsupported thing in the path, step #0 /);
 
 eval {
     @delta = spath_delta(

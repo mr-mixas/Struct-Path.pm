@@ -8,7 +8,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.72
+Version 0.73
 
 # SYNOPSIS
 
@@ -26,7 +26,7 @@ Version 0.72
         undef
     ];
 
-    @list = slist($s);                              # list paths and their values
+    @list = slist($s);                              # list paths and values
     # @list == (
     #     [[0]], \0,
     #     [[1]], \1,
@@ -38,13 +38,13 @@ Version 0.72
     @r = spath($s, [ [3,0,1] ]);                    # get refs to values
     # @r == (\undef, \0, \1)
 
-    @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # same, another example
+    @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # another example
     # @r == (\'2aav', \'2abv')
 
-    @r = spath($s, [ [2],{},{regs => [qr/^2a/]} ]); # or using regular expressions
+    @r = spath($s, [ [2],{},{regs => [qr/^2a/]} ]); # using regular expressions
     # @r == (\'2aav', \'2abv')
 
-    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace
+    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace value
     # $s->[2]{2a}{2aa} eq "blah-blah-av"
 
     @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # get steps delta
@@ -52,14 +52,15 @@ Version 0.72
 
 # DESCRIPTION
 
-Struct::Path provides functions to access/match/expand/list nested data structures.
+Struct::Path provides functions to access/match/expand/list nested data
+structures.
 
-Why existed \*Path\* modules (["SEE ALSO"](#see-also)) is not enough? This module has no
-conflicts for paths like '/a/0/c', where `0` may be an ARRAY index or a key for
-HASH (depends on passed structure). In some cases this is important, for example,
-when one need to define exact path in structure, but unable to validate it's
-schema or when structure itself doesn't yet exists (see ["spath/Options/expand"](#spath-options-expand)
-for example).
+Why [existed Path modules](#see-also) is not enough? This module has no
+conflicts for paths like '/a/0/c', where `0` may be an array index or a key
+for hash (depends on passed structure). In some cases this is important, for
+example, when one need to define exact path in structure, but unable to
+validate it's schema or when structure itself doesn't yet exist (see
+["spath/Options/expand"](#spath-options-expand) for example).
 
 # EXPORT
 
@@ -69,14 +70,15 @@ Nothing is exported by default.
 
 Path is a list of 'steps', each represents nested level in structure.
 
-Arrayref as a step stands for ARRAY in structure and must contain desired indexes
-or be empty (means "all items"). Sequence for indexes is important and defines
-result sequence.
+Arrayref as a step stands for ARRAY in the structure and must contain desired
+indexes or be empty (means "all items"). Sequence for indexes is important
+and defines result sequence.
 
-Hashref represents HASH in the structure and may contain keys `keys`, `regs` or be
-empty. `keys` may contain list of desired keys, `regs` must contain list of regular
-expressions. Empty hash or empty list for `keys` means all keys. Sequence in `keys`
-and `regs` lists defines result sequence. `keys` have higher priority than `regs`.
+Hashref represent HASH in the structure and may contain keys `keys`, `regs`
+or be empty. `keys` may contain list of desired keys, `regs` must contain
+list of regular expressions. Empty hash or empty list for `keys` means all
+keys. Sequence in `keys` and `regs` lists defines result sequence. `keys`
+have higher priority than `regs`.
 
 Sample:
 
@@ -85,12 +87,12 @@ Sample:
         {regs => qr/foo/}   # second step
     ];
 
-Since v0.50 hooks (coderefs) as steps supported. Path as first argument and stack
-of references (arrayref) as second passed to it when executed. Some true (match)
-value or false (doesn't match) value expected as output.
+Since v0.50 hooks (coderefs) as steps supported. Path as first argument and
+stack of references (arrayref) as second passed to it when executed. Some true
+(match) value or false (doesn't match) value expected as output.
 
-See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path definition
-method.
+See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path
+definition method.
 
 # SUBROUTINES
 
@@ -98,7 +100,8 @@ method.
 
     $implicit = is_implicit_step($step);
 
-Returns true value if step contains hooks or specified all items or regexp match.
+Returns true value if step contains hooks or specified 'all' items or regexp
+match.
 
 ## slist
 
@@ -134,7 +137,7 @@ Returns list of references from structure.
 
 - expand `<"append"|true|false>`
 
-    Expand structure if specified in path items doesn't exists. All newly created
+    Expand structure if specified in path items doesn't exist. All newly created
     items initialized by `undef`. Arrays will be growed smoothly if `append` as
     value used (experimental).
 
@@ -173,9 +176,9 @@ Michael Samoglyadov, `<mixas at cpan.org>`
 
 Please report any bugs or feature requests to `bug-struct-path at rt.cpan.org`,
 or through the web interface at
-[http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path). I will be notified,
-and then you'll automatically be notified of progress on your bug as I make
-changes.
+[http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Struct-Path). I will be
+notified, and then you'll automatically be notified of progress on your bug
+as I make changes.
 
 # SUPPORT
 

@@ -23,23 +23,23 @@ like($@, qr/^Reference expected for structure/);
 
 # path must be a list
 eval { spath($s_mixed, undef) };
-like($@, qr/^Path must be arrayref/);
+like($@, qr/^Arrayref expected for path/);
 
 # garbage in the path
 eval { spath($s_mixed, [ 'a' ]) };
-like($@, qr/^Unsupported thing in the path \(step #0\)/);
+like($@, qr/^Unsupported thing in the path, step #0/);
 
 # garbage in hash definitioni 1
 eval { spath($s_mixed, [ {garbage => ['a']} ]) };
-like($@, qr/^Unsupported HASH definition \(step #0\)/); # must be error
+like($@, qr/^Unsupported HASH definition, step #0/); # must be error
 
 # garbage in hash definition 2
 eval { spath($s_mixed, [ {keys => 'a'} ]) };
-like($@, qr/^Unsupported HASH keys definition \(step #0\)/); # must be error
+like($@, qr/^Unsupported HASH keys definition, step #0/); # must be error
 
 # garbage in hash definition 3
 eval { spath($s_mixed, [ {regs => 'a'} ]) };
-like($@, qr/^Unsupported HASH regs definition \(step #0\)/); # must be error
+like($@, qr/^Unsupported HASH regs definition, step #0/); # must be error
 
 # wrong step type, strict
 eval { spath($s_mixed, [ [0] ], strict => 1) };
@@ -59,7 +59,7 @@ ok($@); # must be error
 
 # out of range, but strict opt used
 eval { spath($s_mixed, [ {keys => ['a']},[-3] ], strict => 1) };
-like($@, qr/^\[-3\] doesn't exists \(step #1\) at/);
+like($@, qr/^\[-3\] doesn't exist, step #1/);
 
 # hash key doesn't exists
 eval { spath($s_mixed, [ {keys => ['notexists']} ]) };
@@ -67,7 +67,7 @@ ok(!$@); # must be no error
 
 # hash key doesn't exists, but strict opt used
 eval { spath($s_mixed, [ {keys => ['notexists']} ], strict => 1) };
-ok($@); # must be error
+like($@, qr/^\{notexists\} doesn't exist, step #0/);
 
 # path doesn't exists
 @r = spath($s_mixed, [ [],{keys => ['c']} ]);
