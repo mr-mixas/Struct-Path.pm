@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 36;
+use Test::More tests => 38;
 
 use Struct::Path qw(spath);
 
@@ -10,7 +10,7 @@ use Storable qw(freeze);
 $Storable::canonical = 1;
 
 use lib "t";
-use _common qw($s_array $s_mixed);
+use _common qw($s_array $s_mixed t_dump);
 
 my (@r, $frozen_s);
 
@@ -257,6 +257,30 @@ is_deeply(
     [\[],\0],
     "code refs in the path (grep defined)"
 );
+
+do {
+    local $_ = 'must remain unchanged';
+
+    my $data = [
+        { k => 'one', v => 1 },
+        { k => 'two', v => 2, s => { k => 1 } },
+        { k => 'two', v => 2, s => { k => 2 } },
+    ];
+
+    my $dfltvar = sub {
+        $_->{k} eq 'two' and
+            exists $_->{s} and $_->{s}->{k} < 2
+    };
+
+    @r = spath($data, [ [],$dfltvar,{keys => ['k','s']} ]);
+    is_deeply(
+        \@r,
+        [\'two',\{k => 1}],
+        '$_ usage'
+    ) || diag t_dump \@r;
+
+    is($_, 'must remain unchanged', 'Default var ($_) locality check');
+};
 
 # original structure must remain unchanged
 ok($frozen_s eq freeze($s_mixed));

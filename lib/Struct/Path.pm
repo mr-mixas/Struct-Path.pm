@@ -104,16 +104,19 @@ list of regular expressions. Empty hash or empty list for C<keys> means all
 keys. Sequence in C<keys> and C<regs> lists defines result sequence. C<keys>
 have higher priority than C<regs>.
 
+Coderef step is a hook - subroutine which may filter and/or modify
+structure. Path as first argument and a stack (arrayref) of refs to traversed
+subsstructures as second passed to it when executed, $_ set to current
+substructure. Some true (match) value or false (doesn't match) value expected
+as output.
+
 Sample:
 
     $spath = [
-        [1,7],              # first spep
-        {regs => qr/foo/}   # second step
+        [1,7],                      # first spep
+        {regs => qr/foo/}           # second step
+        sub { exists $_->{bar} }    # third step
     ];
-
-Since v0.50 hooks (coderefs) as steps supported. Path as first argument and
-stack of references (arrayref) as second passed to it when executed. Some true
-(match) value or false (doesn't match) value expected as output.
 
 See L<Struct::Path::PerlStyle> if you're looking for human friendly path
 definition method.
@@ -310,6 +313,7 @@ sub spath($$;@) {
                     delete ${$refs->[-1]}->{$_} if ($opts{delete} and $sc == $#{$spath});
                 }
             } elsif (ref $step eq 'CODE') {
+                local $_ = ${$refs->[-1]};
                 $step->($path, $refs) and push @next, $path, $refs;
             } else {
                 croak "Unsupported thing in the path, step #$sc";
