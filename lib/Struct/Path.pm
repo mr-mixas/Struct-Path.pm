@@ -355,6 +355,8 @@ sub spath_delta($$) {
     return @{$scnd} unless (defined $frst);
     croak "First path may be undef or an arrayref" unless (ref $frst eq 'ARRAY');
 
+    require B::Deparse;
+    my $deparse = B::Deparse->new();
     my $i = 0;
 
     MAIN:
@@ -369,6 +371,11 @@ sub spath_delta($$) {
             for my $j (0 .. $#{$frst->[$i]->{keys}}) {
                 last MAIN unless ($frst->[$i]->{keys}->[$j] eq $scnd->[$i]->{keys}->[$j]);
             }
+        } elsif (ref $frst->[$i] eq 'CODE') {
+            last unless (
+                $deparse->coderef2text($frst->[$i]) eq
+                $deparse->coderef2text($scnd->[$i])
+            );
         } else {
             croak "Unsupported thing in the path, step #$i";
         }

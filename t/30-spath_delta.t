@@ -3,7 +3,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 16;
 
 use Struct::Path qw(spath_delta);
 
@@ -131,5 +131,26 @@ is_deeply(
     \@delta,
     [ {keys => ['ana', 'anc']},[1] ],
     "One hash step item changed in the middle of the path"
+);
+
+@delta = spath_delta(
+    [ {keys => ['a']},sub {0},{keys => ['ana', 'anb']},[1] ],
+    [ {keys => ['a']},sub {0},{keys => ['ana', 'anc']},[1] ]
+);
+is_deeply(
+    \@delta,
+    [ {keys => ['ana', 'anc']},[1] ],
+    "Coderefs equal"
+);
+
+my $sub2 = sub { '' };
+@delta = spath_delta(
+    [ {keys => ['a']},sub {0},{keys => ['ana', 'anb']},[1] ],
+    [ {keys => ['a']},$sub2,{keys => ['ana', 'anc']},[1] ]
+);
+is_deeply(
+    \@delta,
+    [ $sub2,{keys => ['ana', 'anc']},[1] ],
+    "Different coderefs"
 );
 
