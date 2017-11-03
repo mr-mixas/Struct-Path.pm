@@ -28,11 +28,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.73
+Version 0.74
 
 =cut
 
-our $VERSION = '0.73';
+our $VERSION = '0.74';
 
 =head1 SYNOPSIS
 
@@ -114,12 +114,12 @@ Sample:
 
     $spath = [
         [1,7],                      # first spep
-        {regs => qr/foo/}           # second step
+        {regs => [qr/foo/,qr/bar/]} # second step
         sub { exists $_->{bar} }    # third step
     ];
 
-See L<Struct::Path::PerlStyle> if you're looking for human friendly path
-definition method.
+Struct::Path intentionally designed to be machine-friendly. See frontend
+L<Struct::Path::PerlStyle> for human friendly path definition.
 
 =head1 SUBROUTINES
 
@@ -363,13 +363,16 @@ sub spath_delta($$) {
     while ($i < @{$frst} and ref $frst->[$i] eq ref $scnd->[$i]) {
         if (ref $frst->[$i] eq 'ARRAY') {
             last unless (@{$frst->[$i]} == @{$scnd->[$i]});
-            for my $j (0 .. $#{$frst->[$i]}) {
-                last MAIN unless ($frst->[$i]->[$j] == $scnd->[$i]->[$j]);
+            for (0 .. $#{$frst->[$i]}) {
+                last MAIN unless ($frst->[$i]->[$_] == $scnd->[$i]->[$_]);
             }
         } elsif (ref $frst->[$i] eq 'HASH') {
             last unless (@{$frst->[$i]->{keys}} == @{$scnd->[$i]->{keys}});
-            for my $j (0 .. $#{$frst->[$i]->{keys}}) {
-                last MAIN unless ($frst->[$i]->{keys}->[$j] eq $scnd->[$i]->{keys}->[$j]);
+            for (0 .. $#{$frst->[$i]->{keys}}) {
+                last MAIN unless (
+                    $frst->[$i]->{keys}->[$_] eq
+                    $scnd->[$i]->{keys}->[$_]
+                );
             }
         } elsif (ref $frst->[$i] eq 'CODE') {
             last unless (

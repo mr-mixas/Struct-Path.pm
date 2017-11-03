@@ -8,7 +8,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.73
+Version 0.74
 
 # SYNOPSIS
 
@@ -90,12 +90,12 @@ Sample:
 
     $spath = [
         [1,7],                      # first spep
-        {regs => qr/foo/}           # second step
+        {regs => [qr/foo/,qr/bar/]} # second step
         sub { exists $_->{bar} }    # third step
     ];
 
-See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) if you're looking for human friendly path
-definition method.
+Struct::Path intentionally designed to be machine-friendly. See frontend
+[Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) for human friendly path definition.
 
 # SUBROUTINES
 
