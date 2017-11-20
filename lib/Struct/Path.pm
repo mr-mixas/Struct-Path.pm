@@ -236,14 +236,15 @@ All options are disabled (C<undef>) by default.
 =cut
 
 sub spath($$;@) {
-    my ($struct, $spath, %opts) = @_;
+    my (undef, $spath, %opts) = @_;
 
-    croak "Reference expected for structure" unless (ref $struct);
+    # alias used for struct to be able to rewrite it entirely
+    croak "Reference expected for structure" unless (ref $_[0]);
     croak "Arrayref expected for path" unless (ref $spath eq 'ARRAY');
     croak "Unable to remove passed thing entirely (empty path passed)"
         if ($opts{delete} and not @{$spath});
 
-    my @level = ([], [(ref $struct eq 'SCALAR' or ref $struct eq 'REF') ? $struct : \$struct]);
+    my @level = ([], [(ref $_[0] eq 'SCALAR' or ref $_[0] eq 'REF') ? $_[0] : \$_[0]]);
     my $sc = 0; # step counter
     my ($items, @next, $path, $refs, @types);
 
