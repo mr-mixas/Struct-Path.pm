@@ -5,7 +5,7 @@ use warnings;
 use Storable qw(dclone);
 use Test::More tests => 29;
 
-use Struct::Path qw(spath);
+use Struct::Path qw(path);
 
 use lib "t";
 use _common qw($s_array $s_mixed);
@@ -13,12 +13,12 @@ use _common qw($s_array $s_mixed);
 my (@r, $t);
 
 # There is no right way to remove passed thing (set it to undef is no solution either)
-eval { spath(\$t, [], delete => 1) };
+eval { path(\$t, [], delete => 1) };
 like($@, qr/Unable to remove passed thing entirely \(empty path passed\) /,);
 
 # delete single hash key
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['b']} ], delete => 1);
+@r = path($t, [ {K => ['b']} ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],c => 'vc'},
@@ -33,7 +33,7 @@ is_deeply(
 
 # delete single hash key, two steps
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['b']},{keys => ['ba']} ], delete => 1);
+@r = path($t, [ {K => ['b']},{K => ['ba']} ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {bb => 'vbb'},c => 'vc'},
@@ -48,7 +48,7 @@ is_deeply(
 
 # delete all hash substruct
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['b']},{} ], delete => 1);
+@r = path($t, [ {K => ['b']},{} ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0','a1']],b => {},c => 'vc'},
@@ -63,7 +63,7 @@ is_deeply(
 
 # delete hash substruct with {} in the middle of the path
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[0],{},{keys => ['a2ba']} ], delete => 1);
+@r = path($t, [ {K => ['a']},[0],{},{K => ['a2ba']} ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {},a2c => {a2ca => []}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -78,7 +78,7 @@ is_deeply(
 
 # delete hash keys defined by regex
 $t = dclone($s_mixed);
-@r = spath($t, [ {regs => [qr/^a$/]},[0],{regs => [qr/2c$/,qr/2b$/]},{regs => [qr/^a2.a$/]} ], delete => 1);
+@r = path($t, [ {R => [qr/^a$/]},[0],{R => [qr/2c$/,qr/2b$/]},{R => [qr/^a2.a$/]} ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {},a2c => {}},['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -93,7 +93,7 @@ is_deeply(
 
 # delete single array item from the beginning
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[0] ], delete => 1);
+@r = path($t, [ {K => ['a']},[0] ], delete => 1);
 is_deeply(
     $t,
     {a => [['a0','a1']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -108,7 +108,7 @@ is_deeply(
 
 # delete single array item from the end
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[1] ], delete => 1);
+@r = path($t, [ {K => ['a']},[1] ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}}],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -123,7 +123,7 @@ is_deeply(
 
 # delete single item from the middle of array
 $t = dclone($s_array);
-@r = spath($t, [ [3],[1] ], delete => 1);
+@r = path($t, [ [3],[1] ], delete => 1);
 is_deeply(
     $t,
     [3,1,5,[9,7],11],
@@ -138,7 +138,7 @@ is_deeply(
 
 # delete several items from the middle of array to the out of range
 $t = dclone($s_array);
-@r = spath($t, [ [3],[1,2,3,4] ], delete => 1);
+@r = path($t, [ [3],[1,2,3,4] ], delete => 1);
 is_deeply(
     $t,
     [3,1,5,[9],11],
@@ -153,7 +153,7 @@ is_deeply(
 
 # delete several array items, asc
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[0,1] ], delete => 1);
+@r = path($t, [ {K => ['a']},[0,1] ], delete => 1);
 is_deeply(
     $t,
     {a => [],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -168,7 +168,7 @@ is_deeply(
 
 # delete several array items, desc
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[1,0] ], delete => 1);
+@r = path($t, [ {K => ['a']},[1,0] ], delete => 1);
 is_deeply(
     $t,
     {a => [],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -183,7 +183,7 @@ is_deeply(
 
 # delete deep single array item
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[1],[1] ], delete => 1);
+@r = path($t, [ {K => ['a']},[1],[1] ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -198,7 +198,7 @@ is_deeply(
 
 # delete all array's items
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[1],[] ], delete => 1);
+@r = path($t, [ {K => ['a']},[1],[] ], delete => 1);
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},[]],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},
@@ -213,7 +213,7 @@ is_deeply(
 
 # empty array in the middle of the path
 $t = dclone($s_mixed);
-@r = spath($t, [ {keys => ['a']},[],[1] ], delete => 1); # ok without 'strict'
+@r = path($t, [ {K => ['a']},[],[1] ], delete => 1); # ok without 'strict'
 is_deeply(
     $t,
     {a => [{a2a => {a2aa => 0},a2b => {a2ba => undef},a2c => {a2ca => []}},['a0']],b => {ba => 'vba',bb => 'vbb'},c => 'vc'},

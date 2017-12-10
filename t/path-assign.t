@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 8;
 
-use Struct::Path qw(spath);
+use Struct::Path qw(path);
 
 use lib "t";
 use _common qw($s_mixed t_dump);
@@ -12,28 +12,28 @@ use _common qw($s_mixed t_dump);
 my ($got, @r);
 
 $got = undef;
-spath(\$got, [], assign => 'test');
+path(\$got, [], assign => 'test');
 is_deeply($got, 'test', "Replace entire thing (scalar) via assign opt") ||
     diag t_dump $got;
 
 $got = [ 'original' ];
-spath($got, [], assign => 'test');
+path($got, [], assign => 'test');
 is_deeply($got, 'test', "Replace entire thing (array) via assign opt") ||
     diag t_dump $got;
 
 $got = 42;
-@r = spath(\$got, []);
+@r = path(\$got, []);
 ${$r[0]} = 'test';
 is_deeply($got, 'test', "Replace entire thing (scalar) via output") ||
     diag t_dump $got;
 
 $got = [0, 1];
-@r = spath($got, []);
+@r = path($got, []);
 ${$r[0]} = 'test';
 is_deeply($got, 'test', "Replace entire thing (array) via output") ||
     diag t_dump $got;
 
-@r = spath($s_mixed, [ {keys => ['c']} ]);
+@r = path($s_mixed, [ {K => ['c']} ]);
 ${$r[0]} = "vc_replaced";
 is_deeply(
     $s_mixed,
@@ -45,7 +45,7 @@ is_deeply(
     "replace {c} value via returned reference"
 ) or diag t_dump $s_mixed;
 
-@r = spath($s_mixed, [ {keys => ['a']} ], assign => "new a value");
+@r = path($s_mixed, [ {K => ['a']} ], assign => "new a value");
 is_deeply(
     $s_mixed,
     {
@@ -56,7 +56,7 @@ is_deeply(
     "replace {a} value via option 'assign'"
 ) or diag t_dump $s_mixed;
 
-@r = spath($s_mixed, [ {keys => ['b']} ], assign => undef);
+@r = path($s_mixed, [ {K => ['b']} ], assign => undef);
 is_deeply(
     $s_mixed,
     {
@@ -67,7 +67,7 @@ is_deeply(
     "replace {b} value by undef via option 'assign'"
 ) or diag t_dump $s_mixed;
 
-@r = spath($s_mixed, [ {keys => ['b']} ], assign => 'blah-blah', delete => 1);
+@r = path($s_mixed, [ {K => ['b']} ], assign => 'blah-blah', delete => 1);
 is_deeply(
     $s_mixed,
     {

@@ -8,47 +8,33 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.74
+Version 0.80
 
 # SYNOPSIS
 
-    use Struct::Path qw(slist spath spath_delta);
+    use Struct::Path qw(list_paths path);
 
     $s = [
         0,
-        1,
         {
-            '2a' => {
-                '2aa' => '2aav',
-                '2ab' => '2abv'
+            two => {
+                three => 3,
+                four => 4
             }
         },
         undef
     ];
 
-    @list = slist($s);                              # list paths and values
+    @list = list_paths($s);                         # list paths and values
     # @list == (
-    #     [[0]], \0,
-    #     [[1]], \1,
-    #     [[2],{keys => ['2a']},{keys => ['2aa']}], \'2aav',
-    #     [[2],{keys => ['2a']},{keys => ['2ab']}], \'2abv',
-    #     [[3]], \undef
+    #   [[0]], \0,
+    #   [[1],{K => ['two']},{K => ['four']}], \4,
+    #   [[1],{K => ['two']},{K => ['three']}], \3,
+    #   [[2]], \undef
     # )
 
-    @r = spath($s, [ [3,0,1] ]);                    # get refs to values
-    # @r == (\undef, \0, \1)
-
-    @r = spath($s, [ [2],{keys => ['2a']},{} ]);    # another example
-    # @r == (\'2aav', \'2abv')
-
-    @r = spath($s, [ [2],{},{regs => [qr/^2a/]} ]); # using regular expressions
-    # @r == (\'2aav', \'2abv')
-
-    ${$r[0]} =~ s/2a/blah-blah-/;                   # replace value
-    # $s->[2]{2a}{2aa} eq "blah-blah-av"
-
-    @d = spath_delta([[0],[4],[2]], [[0],[1],[3]]); # get steps delta
-    # @d == ([1],[3])
+    @r = path($s, [ [1],{K => ['two']} ]);         # get refs to values
+    # @r == (\{four => 4,three => 3})
 
 # DESCRIPTION
 
@@ -57,10 +43,10 @@ structures.
 
 Why [existed Path modules](#see-also) is not enough? This module has no
 conflicts for paths like '/a/0/c', where `0` may be an array index or a key
-for hash (depends on passed structure). In some cases this is important, for
+for hash (depends on passed structure). This is vital in some cases, for
 example, when one need to define exact path in structure, but unable to
 validate it's schema or when structure itself doesn't yet exist (see
-["spath/Options/expand"](#spath-options-expand) for example).
+option `expand` for ["path"](#path) for example).
 
 # EXPORT
 
@@ -70,27 +56,25 @@ Nothing is exported by default.
 
 Path is a list of 'steps', each represents nested level in structure.
 
-Arrayref as a step stands for ARRAY in the structure and must contain desired
-indexes or be empty (means "all items"). Sequence for indexes is important
-and defines result sequence.
+Arrayref as a step stands for ARRAY and must contain desired items indexes or
+be empty (means "all items"). Sequence for indexes define result sequence.
 
-Hashref represent HASH in the structure and may contain keys `keys`, `regs`
-or be empty. `keys` may contain list of desired keys, `regs` must contain
-list of regular expressions. Empty hash or empty list for `keys` means all
-keys. Sequence in `keys` and `regs` lists defines result sequence. `keys`
-have higher priority than `regs`.
+Hashref represent HASH and may contain keys `K`, `R` or be empty. `K` may
+contain list of desired keys, `R` must contain list of regular
+expressions. Empty hash or empty list for `K` means all keys. Sequence in `K`
+and `R` lists define result sequence. `K` have higher priority than `R`.
 
 Coderef step is a hook - subroutine which may filter and/or modify
 structure. Path as first argument and a stack (arrayref) of refs to traversed
-subsstructures as second passed to it when executed, $\_ set to current
+subsstructures as second passed to it when executed, `$_` set to current
 substructure. Some true (match) value or false (doesn't match) value expected
 as output.
 
 Sample:
 
-    $spath = [
+    $path = [
         [1,7],                      # first spep
-        {regs => [qr/foo/,qr/bar/]} # second step
+        {R => [qr/foo/,qr/bar/]}    # second step
         sub { exists $_->{bar} }    # third step
     ];
 
@@ -99,18 +83,18 @@ Struct::Path intentionally designed to be machine-friendly. See frontend
 
 # SUBROUTINES
 
-## is\_implicit\_step
+## implicit\_step
 
-    $implicit = is_implicit_step($step);
+    $bool = implicit_step($step);
 
 Returns true value if step contains hooks or specified 'all' items or regexp
 match.
 
-## slist
+## list\_paths
 
 Returns list of paths and references to their values from structure.
 
-    @list = slist($struct, %opts)
+    @list = list_paths($structure, %opts)
 
 ### Options
 
@@ -118,11 +102,11 @@ Returns list of paths and references to their values from structure.
 
     Don't dive into structure deeper than defined level.
 
-## spath
+## path
 
 Returns list of references from structure.
 
-    @list = spath($struct, $path, %opts)
+    @found = path($structure, $path, %opts)
 
 ### Options
 
@@ -158,12 +142,12 @@ Returns list of references from structure.
 
 All options are disabled (`undef`) by default.
 
-## spath\_delta
+## path\_delta
 
-Returns delta for two passed paths. By delta means steps from the second path
-without beginning common steps for both.
+Returns delta for two passed paths. By delta means list of steps from the
+second path without beginning common steps for both.
 
-    @delta = spath_delta($path1, $path2)
+    @delta = path_delta($path1, $path2)
 
 # LIMITATIONS
 
