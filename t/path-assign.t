@@ -12,7 +12,7 @@ use _common qw($s_mixed t_dump);
 my ($got, @r);
 
 $got = undef;
-path(\$got, [], assign => 'test');
+path($got, [], assign => 'test');
 is_deeply($got, 'test', "Replace entire thing (scalar) via assign opt") ||
     diag t_dump $got;
 
@@ -22,7 +22,7 @@ is_deeply($got, 'test', "Replace entire thing (array) via assign opt") ||
     diag t_dump $got;
 
 $got = 42;
-@r = path(\$got, []);
+@r = path($got, []);
 ${$r[0]} = 'test';
 is_deeply($got, 'test', "Replace entire thing (scalar) via output") ||
     diag t_dump $got;

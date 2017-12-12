@@ -221,13 +221,11 @@ All options are disabled (C<undef>) by default.
 sub path($$;@) {
     my (undef, $path, %opts) = @_;
 
-    # alias used for struct to be able to rewrite it entirely
-    croak "Reference expected for structure" unless (ref $_[0]);
     croak "Arrayref expected for path" unless (ref $path eq 'ARRAY');
     croak "Unable to remove passed thing entirely (empty path passed)"
         if ($opts{delete} and not @{$path});
 
-    my @level = ([], [(ref $_[0] eq 'SCALAR' or ref $_[0] eq 'REF') ? $_[0] : \$_[0]]);
+    my @level = ([], [\$_[0]]); # alias - to be able to rewrite passed scalar
     my $sc = 0; # step counter
     my ($items, @next, $steps, $refs, @types);
 

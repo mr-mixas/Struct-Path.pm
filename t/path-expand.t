@@ -23,7 +23,7 @@ eval { @r = path($tmp, [ {K => ['a']},[1],{K => ['a1a']} ], expand => 1, strict 
 like($@, qr/^HASH expected on step #2, got ARRAY/);
 
 $tmp = 'Will be overwritten';
-@r = path(\$tmp, [ {K => ['a']},[3] ], expand => 1);
+@r = path($tmp, [ {K => ['a']},[3] ], expand => 1);
 is_deeply(
     $tmp,
     {a => [undef,undef,undef,undef]},
@@ -57,7 +57,7 @@ is_deeply(
 );
 
 $tmp = undef;
-@r = path(\$tmp, [ [1,8],[3,16] ], expand => 'append');
+@r = path($tmp, [ [1,8],[3,16] ], expand => 'append');
 is_deeply(
     $tmp,
     [[undef,undef],[undef,undef]],
@@ -65,7 +65,7 @@ is_deeply(
 ) or diag t_dump $tmp;
 
 $tmp = [0, 1, 2, 3];
-@r = path(\$tmp, [ [8,1],[16,3] ], expand => 'append');
+@r = path($tmp, [ [8,1],[16,3] ], expand => 'append');
 is_deeply(
     $tmp,
     [0,[undef,undef],2,3,[undef,undef]],

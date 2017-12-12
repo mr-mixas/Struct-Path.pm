@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 38;
+use Test::More tests => 36;
 
 use Struct::Path qw(path);
 
@@ -16,10 +16,6 @@ my (@r, $frozen_s);
 
 # will check later it's not chaged
 $frozen_s = freeze($s_mixed);
-
-# nonref as a structure
-eval { path(undef, []) };
-like($@, qr/^Reference expected for structure/);
 
 # path must be a list
 eval { path($s_mixed, undef) };
@@ -88,14 +84,6 @@ is_deeply(
     \@r,
     [\bless( {}, 'Thing' )],
     "blessed thing as a structure"
-);
-
-# REF as a structure
-@r = path(\$s_mixed, [ {K => ['b']} ]);
-is_deeply(
-    \@r,
-    [\{ba => 'vba',bb => 'vbb'}],
-    "get {b}"
 );
 
 # get
