@@ -8,7 +8,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.80
+Version 0.81
 
 # SYNOPSIS
 

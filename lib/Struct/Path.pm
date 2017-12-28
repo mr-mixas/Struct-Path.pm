@@ -28,11 +28,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.80
+Version 0.81
 
 =cut
 
-our $VERSION = '0.80';
+our $VERSION = '0.81';
 
 =head1 SYNOPSIS
 
@@ -250,6 +250,7 @@ sub path($$;@) {
                         croak "[$_] doesn't exist, step #$sc" if ($opts{strict});
                         next;
                     }
+                    $_ += @{${$refs->[-1]}} if ($_ < 0); # resolve negative index
                     $_ = @{${$refs->[-1]}} if ($opts{expand} and
                         $_ > @{${$refs->[-1]}} and $opts{expand} eq 'append');
                     push @next, [@{$steps}, [$_]], [@{$refs}, \${$refs->[-1]}->[$_]];
