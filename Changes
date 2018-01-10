@@ -1,5 +1,8 @@
 Revision history for Struct-Path
 
+0.81    2018-01-10
+        - path(): resolve negative array indexes in paths
+
 0.80    2017-12-22
         - hash definition format changed, exported subs renamed to avoid ambigouseness
         - path() now works with scalars as is (ref not required)
