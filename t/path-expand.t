@@ -3,7 +3,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 13;
 
 use Struct::Path qw(path);
 
@@ -70,6 +70,30 @@ is_deeply(
     $tmp,
     [0,[undef,undef],2,3,[undef,undef]],
     "expand-append [8,1],[16,3] for [0, 1, 2, 3]"
+) or diag t_dump $tmp;
+
+$tmp = [];
+@r = path($tmp, [ [-1] ], expand => 1);
+is_deeply(
+    $tmp,
+    [undef],
+    "expand by out of range negative index (-1)"
+) or diag t_dump $tmp;
+
+$tmp = [];
+@r = path($tmp, [ [-3] ], expand => 1);
+is_deeply(
+    $tmp,
+    [undef, undef, undef],
+    "expand by out of range negative index (-3)"
+) or diag t_dump $tmp;
+
+$tmp = [];
+@r = path($tmp, [ [-3] ], expand => 'append');
+is_deeply(
+    $tmp,
+    [undef],
+    "expand by out of range negative index (-3, append)"
 ) or diag t_dump $tmp;
 
 ### HASHES ###
