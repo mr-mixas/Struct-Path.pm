@@ -8,7 +8,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.81
+Version 0.82
 
 # SYNOPSIS
 
@@ -46,7 +46,7 @@ conflicts for paths like '/a/0/c', where `0` may be an array index or a key
 for hash (depends on passed structure). This is vital in some cases, for
 example, when one need to define exact path in structure, but unable to
 validate it's schema or when structure itself doesn't yet exist (see
-option `expand` for ["path"](#path) for example).
+option `expand` for ["path"](#path)).
 
 # EXPORT
 
@@ -54,19 +54,19 @@ Nothing is exported by default.
 
 # ADDRESSING SCHEME
 
-Path is a list of 'steps', each represents nested level in structure.
+Path is a list of 'steps', each represents nested level in the structure.
 
 Arrayref as a step stands for ARRAY and must contain desired items indexes or
 be empty (means "all items"). Sequence for indexes define result sequence.
 
 Hashref represent HASH and may contain keys `K`, `R` or be empty. `K` may
-contain list of desired keys, `R` must contain list of regular
+contain list of desired keys, `R` must contain list of compiled regular
 expressions. Empty hash or empty list for `K` means all keys. Sequence in `K`
 and `R` lists define result sequence. `K` have higher priority than `R`.
 
 Coderef step is a hook - subroutine which may filter and/or modify
 structure. Path as first argument and a stack (arrayref) of refs to traversed
-subsstructures as second passed to it when executed, `$_` set to current
+substructures as second passed to it when executed, `$_` set to current
 substructure. Some true (match) value or false (doesn't match) value expected
 as output.
 
@@ -78,8 +78,8 @@ Sample:
         sub { exists $_->{bar} }    # third step
     ];
 
-Struct::Path intentionally designed to be machine-friendly. See frontend
-[Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) for human friendly path definition.
+Struct::Path designed to be machine-friendly. See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle)
+or [Struct::Path::JsonPointer](https://metacpan.org/pod/Struct::Path::JsonPointer) for human friendly path definition.
 
 # SUBROUTINES
 
@@ -197,7 +197,7 @@ You can also look for information at:
 [Data::Nested](https://metacpan.org/pod/Data::Nested) [Data::PathSimple](https://metacpan.org/pod/Data::PathSimple) [Data::Reach](https://metacpan.org/pod/Data::Reach) [Data::Spath](https://metacpan.org/pod/Data::Spath) [JSON::Path](https://metacpan.org/pod/JSON::Path)
 [MarpaX::xPathLike](https://metacpan.org/pod/MarpaX::xPathLike) [Sereal::Path](https://metacpan.org/pod/Sereal::Path) [Data::Find](https://metacpan.org/pod/Data::Find)
 
-[Struct::Diff](https://metacpan.org/pod/Struct::Diff) [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle)
+[Struct::Diff](https://metacpan.org/pod/Struct::Diff) [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle) [Struct::Path::JsonPointer](https://metacpan.org/pod/Struct::Path::JsonPointer)
 
 # LICENSE AND COPYRIGHT
 
