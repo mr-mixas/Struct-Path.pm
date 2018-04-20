@@ -192,11 +192,10 @@ Delete specified by path items from structure.
 
 Dereference result items.
 
-=item expand C<< <"append"|true|false> >>
+=item expand C<< <true|false> >>
 
 Expand structure if specified in path items doesn't exist. All newly created
-items initialized by C<undef>. Arrays will be growed smoothly if C<append> as
-value used (experimental).
+items initialized by C<undef>.
 
 =item paths C<< <true|false> >>
 
@@ -254,9 +253,6 @@ sub path($$;@) {
                             $_ = abs(++$_);
                         }
                     }
-
-                    $_ = @{${$refs->[-1]}} if ($opts{expand} and
-                        $_ > @{${$refs->[-1]}} and $opts{expand} eq 'append');
 
                     push @next, [@{$steps}, [$_]], [@{$refs}, \${$refs->[-1]}->[$_]];
                 }

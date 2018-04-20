@@ -122,11 +122,10 @@ Returns list of references from structure.
 
     Dereference result items.
 
-- expand `<"append"|true|false>`
+- expand `<true|false>`
 
     Expand structure if specified in path items doesn't exist. All newly created
-    items initialized by `undef`. Arrays will be growed smoothly if `append` as
-    value used (experimental).
+    items initialized by `undef`.
 
 - paths `<true|false>`
 
