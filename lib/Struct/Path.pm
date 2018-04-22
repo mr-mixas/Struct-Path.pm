@@ -246,11 +246,12 @@ sub path($$;@) {
                         next;
                     }
 
-                    if ($_ < 0) { # negative index
-                        if (@{${$refs->[-1]}} >= abs($_)) {
-                            $_ += @{${$refs->[-1]}};
+                    if ($_ < 0) {
+                        if (@{${$refs->[-1]}} < abs($_)) {
+                            # expand smoothly for out of range negative indexes
+                            $_ = @{${$refs->[-1]}};
                         } else {
-                            $_ = abs(++$_);
+                            $_ += @{${$refs->[-1]}};
                         }
                     }
 

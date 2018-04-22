@@ -68,7 +68,7 @@ $tmp = [];
 @r = path($tmp, [ [-3] ], expand => 1);
 is_deeply(
     $tmp,
-    [undef, undef, undef],
+    [undef],
     "expand by out of range negative index (-3)"
 ) or diag t_dump $tmp;
 
