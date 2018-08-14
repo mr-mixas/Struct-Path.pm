@@ -67,8 +67,8 @@ and `R` lists define result sequence. `K` have higher priority than `R`.
 Coderef step is a hook - subroutine which may filter and/or modify
 structure. Path as first argument and a stack (arrayref) of refs to traversed
 substructures as second passed to it when executed, `$_` set to current
-substructure. Some true (match) value or false (doesn't match) value expected
-as output.
+substructure, `$_{opts}` contains passed options. Some true (match) value or
+false (doesn't match) value expected as output.
 
 Sample:
 
