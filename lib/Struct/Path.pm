@@ -228,6 +228,9 @@ sub path($$;@) {
 
     for my $step (@{$path}) {
         while (($steps, $refs) = splice @level, 0, 2) {
+            croak "Reference expected for refs stack entry, step #$sc"
+                unless (ref $refs->[-1]);
+
             if (ref $step eq 'ARRAY') {
                 if (ref ${$refs->[-1]} ne 'ARRAY') {
                     croak "ARRAY expected on step #$sc, got " . ref ${$refs->[-1]}

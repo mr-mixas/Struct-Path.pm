@@ -2,7 +2,7 @@
 use 5.006;
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 use Struct::Path qw(path);
 
@@ -24,6 +24,10 @@ like($@, qr/^Arrayref expected for path/);
 # garbage in the path
 eval { path($s_mixed, [ 'a' ]) };
 like($@, qr/^Unsupported thing in the path, step #0/);
+
+# garbage in the refstack
+eval { path($s_mixed, [ sub { push @{$_[1]}, undef }, [0] ]) };
+like($@, qr/^Reference expected for refs stack entry, step #1/);
 
 # garbage in hash definitioni 1
 eval { path($s_mixed, [ {garbage => ['a']} ]) };
