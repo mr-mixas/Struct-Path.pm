@@ -224,14 +224,14 @@ sub path($$;@) {
 
     my @level = ([], [\$_[0]]); # alias - to be able to rewrite passed scalar
     my $sc = 0; # step counter
-    my ($items, @next, $steps, $refs, @types);
+    my ($items, @next, $steps, $refs, $step_type, @types);
 
     for my $step (@{$path}) {
         while (($steps, $refs) = splice @level, 0, 2) {
             croak "Reference expected for refs stack entry, step #$sc"
                 unless (ref $refs->[-1]);
 
-            if (ref $step eq 'ARRAY') {
+            if (($step_type = ref $step) eq 'ARRAY') {
                 if (ref ${$refs->[-1]} ne 'ARRAY') {
                     croak "ARRAY expected on step #$sc, got " . ref ${$refs->[-1]}
                         if ($opts{strict});
@@ -265,7 +265,7 @@ sub path($$;@) {
                     map { splice(@{${$refs->[-1]}}, $_, 1) if ($_ < @{${$refs->[-1]}}) }
                         reverse sort @{$items};
                 }
-            } elsif (ref $step eq 'HASH') {
+            } elsif ($step_type eq 'HASH') {
                 if (ref ${$refs->[-1]} ne 'HASH') {
                     croak "HASH expected on step #$sc, got " . ref ${$refs->[-1]}
                         if ($opts{strict});
@@ -302,7 +302,7 @@ sub path($$;@) {
                     push @next, [@{$steps}, {K => [$_]}], [@{$refs}, \${$refs->[-1]}->{$_}];
                     delete ${$refs->[-1]}->{$_} if ($opts{delete} and $sc == $#{$path});
                 }
-            } elsif (ref $step eq 'CODE') {
+            } elsif ($step_type eq 'CODE') {
                 local $_ = ${$refs->[-1]};
                 local $_{opts} = \%opts;
                 $step->($steps, $refs) and push @next, $steps, $refs;
