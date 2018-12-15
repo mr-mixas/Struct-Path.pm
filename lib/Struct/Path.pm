@@ -83,10 +83,10 @@ Path is a list of 'steps', each represents nested level in the structure.
 Arrayref as a step stands for ARRAY and must contain desired items indexes or
 be empty (means "all items"). Sequence for indexes define result sequence.
 
-Hashref represent HASH and may contain keys C<K>, C<R> or be empty. C<K> may
-contain list of desired keys, C<R> must contain list of compiled regular
-expressions. Empty hash or empty list for C<K> means all keys. Sequence in C<K>
-and C<R> lists define result sequence. C<K> have higher priority than C<R>.
+Hashref represent HASH and may contain key C<K> or be empty. C<K>'s value
+should be a list of desired keys and compiled regular expressions. Empty
+hash or empty list for C<K> means all keys, sequence in the list define
+resulting sequence.
 
 Coderef step is a hook - subroutine which may filter and/or modify
 structure. Path as first argument and a stack (arrayref) of refs to traversed
@@ -123,6 +123,7 @@ sub implicit_step {
         return 1 if (exists $_[0]->{R} and @{$_[0]->{R}});
         return 1 unless (exists $_[0]->{K});
         return 1 unless (@{$_[0]->{K}});
+        ref $_ eq 'Regexp' && return 1 for (@{$_[0]->{K}})
     } else { # hooks
         return 1;
     }
@@ -284,12 +285,17 @@ sub path($$;@) {
                     }
 
                     if ($t eq 'K') {
-                        for (@{$step->{K}}) {
-                            unless ($opts{expand} or exists ${$refs->[-1]}->{$_}) {
-                                croak "{$_} doesn't exist, step #$sc" if $opts{strict};
-                                next;
+                        for my $i (@{$step->{K}}) {
+                            if (ref $i eq 'Regexp') {
+                                push @{$items}, grep { $_ =~ $i }
+                                    keys %{${$refs->[-1]}};
+                            } else {
+                                unless ($opts{expand} or exists ${$refs->[-1]}->{$i}) {
+                                    croak "{$i} doesn't exist, step #$sc" if $opts{strict};
+                                    next;
+                                }
+                                push @{$items}, $i;
                             }
-                            push @{$items}, $_;
                         }
                     } else {
                         for my $g (@{$step->{R}}) {

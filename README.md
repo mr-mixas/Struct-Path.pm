@@ -59,10 +59,10 @@ Path is a list of 'steps', each represents nested level in the structure.
 Arrayref as a step stands for ARRAY and must contain desired items indexes or
 be empty (means "all items"). Sequence for indexes define result sequence.
 
-Hashref represent HASH and may contain keys `K`, `R` or be empty. `K` may
-contain list of desired keys, `R` must contain list of compiled regular
-expressions. Empty hash or empty list for `K` means all keys. Sequence in `K`
-and `R` lists define result sequence. `K` have higher priority than `R`.
+Hashref represent HASH and may contain key `K` or be empty. `K`'s value
+should be a list of desired keys and compiled regular expressions. Empty
+hash or empty list for `K` means all keys, sequence in the list define
+resulting sequence.
 
 Coderef step is a hook - subroutine which may filter and/or modify
 structure. Path as first argument and a stack (arrayref) of refs to traversed
