@@ -8,7 +8,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.82
+Version 0.83
 
 # SYNOPSIS
 
@@ -41,7 +41,7 @@ Version 0.82
 Struct::Path provides functions to access/match/expand/list nested data
 structures.
 
-Why [existed Path modules](#see-also) is not enough? This module has no
+Why [existed modules](#see-also) are not enough? This module has no
 conflicts for paths like '/a/0/c', where `0` may be an array index or a key
 for hash (depends on passed structure). This is vital in some cases, for
 example, when one need to define exact path in structure, but unable to
@@ -79,7 +79,7 @@ Sample:
     ];
 
 Struct::Path designed to be machine-friendly. See [Struct::Path::PerlStyle](https://metacpan.org/pod/Struct::Path::PerlStyle)
-or [Struct::Path::JsonPointer](https://metacpan.org/pod/Struct::Path::JsonPointer) for human friendly path definition.
+and [Struct::Path::JsonPointer](https://metacpan.org/pod/Struct::Path::JsonPointer) for human friendly path definition.
 
 # SUBROUTINES
 

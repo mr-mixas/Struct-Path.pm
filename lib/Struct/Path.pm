@@ -28,11 +28,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.82
+Version 0.83
 
 =cut
 
-our $VERSION = '0.82';
+our $VERSION = '0.83';
 
 =head1 SYNOPSIS
 
@@ -65,7 +65,7 @@ our $VERSION = '0.82';
 Struct::Path provides functions to access/match/expand/list nested data
 structures.
 
-Why L<existed Path modules|/"SEE ALSO"> is not enough? This module has no
+Why L<existed modules|/"SEE ALSO"> are not enough? This module has no
 conflicts for paths like '/a/0/c', where C<0> may be an array index or a key
 for hash (depends on passed structure). This is vital in some cases, for
 example, when one need to define exact path in structure, but unable to
@@ -103,7 +103,7 @@ Sample:
     ];
 
 Struct::Path designed to be machine-friendly. See L<Struct::Path::PerlStyle>
-or L<Struct::Path::JsonPointer> for human friendly path definition.
+and L<Struct::Path::JsonPointer> for human friendly path definition.
 
 =head1 SUBROUTINES
 
