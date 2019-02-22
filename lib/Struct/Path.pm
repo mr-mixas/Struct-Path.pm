@@ -98,7 +98,7 @@ Sample:
 
     $path = [
         [1,7],                      # first spep
-        {R => [qr/foo/,qr/bar/]}    # second step
+        {K => [qr/foo/,qr/bar/]}    # second step
         sub { exists $_->{bar} }    # third step
     ];
 
@@ -120,7 +120,6 @@ sub implicit_step {
     if (ref $_[0] eq 'ARRAY') {
         return 1 unless (@{$_[0]});
     } elsif (ref $_[0] eq 'HASH') {
-        return 1 if (exists $_[0]->{R} and @{$_[0]->{R}});
         return 1 unless (exists $_[0]->{K});
         return 1 unless (@{$_[0]->{K}});
         ref $_ eq 'Regexp' && return 1 for (@{$_[0]->{K}})
@@ -274,37 +273,32 @@ sub path($$;@) {
                     ${$refs->[-1]} = {};
                 }
 
-                @types = grep { exists $step->{$_} } qw(K R);
-                croak "Unsupported HASH definition, step #$sc" if (@types != keys %{$step});
                 undef $items;
 
-                for my $t (@types) {
-                    unless (ref $step->{$t} eq 'ARRAY') {
-                        my $type = $t eq 'K' ? "keys" : "regs";
-                        croak "Unsupported HASH $type definition, step #$sc";
-                    }
+                if (exists $step->{K}) {
+                    croak "Unsupported HASH definition, step #$sc"
+                        if (keys %{$step} > 1);
+                    croak "Unsupported HASH keys definition, step #$sc"
+                        unless (ref $step->{K} eq 'ARRAY');
 
-                    if ($t eq 'K') {
-                        for my $i (@{$step->{K}}) {
-                            if (ref $i eq 'Regexp') {
-                                push @{$items}, grep { $_ =~ $i }
-                                    keys %{${$refs->[-1]}};
-                            } else {
-                                unless ($opts{expand} or exists ${$refs->[-1]}->{$i}) {
-                                    croak "{$i} doesn't exist, step #$sc" if $opts{strict};
-                                    next;
-                                }
-                                push @{$items}, $i;
+                    for my $i (@{$step->{K}}) {
+                        if (ref $i eq 'Regexp') {
+                            push @{$items}, grep { $_ =~ $i }
+                                keys %{${$refs->[-1]}};
+                        } else {
+                            unless ($opts{expand} or exists ${$refs->[-1]}->{$i}) {
+                                croak "{$i} doesn't exist, step #$sc" if $opts{strict};
+                                next;
                             }
-                        }
-                    } else {
-                        for my $g (@{$step->{R}}) {
-                            push @{$items}, grep { $_ =~ $g } keys %{${$refs->[-1]}};
+                            push @{$items}, $i;
                         }
                     }
+                } else {
+                    croak "Unsupported HASH definition, step #$sc"
+                        if (keys %{$step});
                 }
 
-                for (@types ? @{$items} : keys %{${$refs->[-1]}}) {
+                for (exists $step->{K} ? @{$items} : keys %{${$refs->[-1]}}) {
                     push @next, [@{$steps}, {K => [$_]}], [@{$refs}, \${$refs->[-1]}->{$_}];
                     delete ${$refs->[-1]}->{$_} if ($opts{delete} and $sc == $#{$path});
                 }
