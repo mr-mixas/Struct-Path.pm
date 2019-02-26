@@ -27,7 +27,7 @@ like($@, qr/^Unsupported thing in the path, step #0/);
 
 # garbage in the refstack
 eval { path($s_mixed, [ sub { push @{$_[1]}, undef }, [0] ]) };
-like($@, qr/^Reference expected for refs stack entry, step #1/);
+like($@, qr/^Reference expected for refs stack entry, step #0/);
 
 # garbage in hash definition 1
 eval { path($s_mixed, [ {garbage => ['a']} ]) };
