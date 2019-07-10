@@ -28,11 +28,11 @@ Struct::Path - Path for nested structures where path is also a structure
 
 =head1 VERSION
 
-Version 0.83
+Version 0.84
 
 =cut
 
-our $VERSION = '0.83';
+our $VERSION = '0.84';
 
 =head1 SYNOPSIS
 
@@ -448,7 +448,7 @@ L<Struct::Diff> L<Struct::Path::PerlStyle> L<Struct::Path::JsonPointer>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2016-2018 Michael Samoglyadov.
+Copyright 2016-2019 Michael Samoglyadov.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

@@ -8,7 +8,7 @@ Struct::Path - Path for nested structures where path is also a structure
 
 # VERSION
 
-Version 0.83
+Version 0.84
 
 # SYNOPSIS
 
@@ -64,17 +64,18 @@ should be a list of desired keys and compiled regular expressions. Empty
 hash or empty list for `K` means all keys, sequence in the list define
 resulting sequence.
 
-Coderef step is a hook - subroutine which may filter and/or modify
-structure. Path as first argument and a stack (arrayref) of refs to traversed
-substructures as second passed to it when executed, `$_` set to current
-substructure, `$_{opts}` contains passed options. Some true (match) value or
-false (doesn't match) value expected as output.
+Coderef step is a hook - subroutine which may filter out items and/or modify
+structure. Traversed path for first, stack of passed structured for secong and
+path remainder for third agrument passed to hook when executed; all passed args
+are arrayrefs. Among this two global variables available within hook: `$_` is
+set to current substructure and `$_{opts}` contains c<path()>'s options. Some
+true (match) value or false (doesn't match) value expected as output.
 
 Sample:
 
     $path = [
         [1,7],                      # first spep
-        {R => [qr/foo/,qr/bar/]}    # second step
+        {K => [qr/foo/,qr/bar/]}    # second step
         sub { exists $_->{bar} }    # third step
     ];
 
@@ -200,7 +201,7 @@ You can also look for information at:
 
 # LICENSE AND COPYRIGHT
 
-Copyright 2016-2018 Michael Samoglyadov.
+Copyright 2016-2019 Michael Samoglyadov.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
